@@ -1,0 +1,10 @@
+﻿NXP Software Content Register
+ 
+Name: dm-nmh1000-magnetic-switch-example
+Version: 1.0
+Outgoing License: LA_OPT_NXP_Software_License v53 December 2023 - Additional Distribution License granted, license in Section 2.3 applies
+License File: LICENSE.txt
+Description: Magnetic Wake-up Example using NMH1000 Magnetic Switch Sensor for FRDM-MCXN947.
+Release location: https://github.com/nxp-appcodehub/dm-nmh1000-magnetic-switch-example
+Origin: NXP (BSD-3-Clause)
+        CMSIS (Apache-2.0) - https://github.com/ARM-software/CMSIS_5/releases/tag/5.8.0

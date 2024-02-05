@@ -1,0 +1,30 @@
+<data:item xmlns:data="data" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="data ../../xsd/alp.xsd" id="dm-nmh1000-magnetic-switch-example" type="demo" format="projectfile" versionSchema="1.0.0" name="NMH1000 Magnetic Switch Example">
+    <display_title>
+        Magnetic Wake-up Example using NMH1000 Magnetic Switch Sensor
+    </display_title>
+    <overview>
+        <![CDATA[This example demo describes how to configure NMH1000 magnetic switch sensor to enable magnetic wake-up use-case. Such use-case can find many applications where user would like to completely shut off power supply or put the device in power down mode etc. based on magnetic field applied. Examples include, smart meters, shelf labels, reed switch replacement, smart home etc.<br />]]>
+    </overview>
+    <toolchains>
+        <toolchain name="mcux"></toolchain>
+    </toolchains>
+    <families>
+        <family name="mcx"></family>
+    </families>
+    <nxp_compatible_hw>
+        <hw id="FRDM-MCXN947"></hw>
+    </nxp_compatible_hw>
+    <nxp_ebh_hw>
+        <ebh id="nxp_frdm_stbi_nmh1000"></ebh>
+        <ebh id="mikroe_hall_switch_3_click"></ebh>
+    </nxp_ebh_hw>
+    <peripherals>
+        <peripheral name="i2c"></peripheral>
+        <peripheral name="sensor"></peripheral>
+        <peripheral name="uart"></peripheral>
+    </peripherals>
+    <categories>
+        <category name="sensor"></category>
+        <category name="low_power"></category>
+    </categories>
+</data:item>
