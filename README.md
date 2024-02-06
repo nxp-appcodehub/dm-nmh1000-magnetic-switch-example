@@ -54,7 +54,7 @@
 - Install Git v2.39.0 (for cloning and running west commands)
 - RealTerm (for checking examples output)
 
-### 3.2 Step 2: Clone the APP-CODE-HUB/an-fxls8974cf-low-power-wake-up-examples
+### 3.2 Step 2: Clone the APP-CODE-HUB/dm-nmh1000-magnetic-switch-example
 - Clone this repository to get the example projects:
 - Change directory to cloned project folder:<br>
     cd *dm-nmh1000-magnetic-switch-example*
