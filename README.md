@@ -19,7 +19,7 @@
 
 
 - #### Boards: FRDM-MCXN947
-- #### Accessories: nxp_frdm_stbi_nmh1000
+- #### Accessories: nxp_frdm_stbi_nmh1000, mikroe_hall_switch_3_click
 - #### Categories: Low Power, Sensor
 - #### Peripherals: I2C, UART
 - #### Toolchains: MCUXpresso IDE
@@ -88,7 +88,6 @@
     *Successfully Initialized NMH1000 Sensor* <br>
     *Successfully Applied Sensor Configuration for Mage Wakeup* <br>
     *Waiting for Magnetic Field to Change* <br>
-    *Sensor Operating Mode Transitioned to Sleep Mode....SYSMODE = 2* <br>
 
 	*Mag Threshold (50) Crossed: Mag Out = 180* <br>
 	*Mag Wake Up Detected* <br>
