@@ -13,12 +13,12 @@
 - It can find lots of applications requiring change in magnetic field strength to wake-up and raise interrupt to wake-up host MCU/System.
 
 
-- The image below shows the basic inertial motion events detections using SDCD.
+- The image below shows NMH1000 magnetic switch sensor block diagram.
 
     [<img src="./images/NMH1000_Block_Diagram.png" width="700"/>](NMH1000_Block_Diagram.png)
 
 
-- #### Boards: FRDM-MCXN947
+- #### Boards: FRDM-MCXN947, FRDM-MCXA153
 - #### Accessories: nxp_frdm_stbi_nmh1000, mikroe_hall_switch_3_click
 - #### Categories: Low Power, Sensor
 - #### Peripherals: I2C, UART
@@ -34,13 +34,15 @@
 ## 1. Software<a name="step1"></a>
 - IoT Sensing SDK (ISSDK) v1.8 offered as middleware in MCUXpresso SDK for supported platforms (https://nxp.com/iot-sensing-sdk)
 - MCUXpresso SDK v2.13.1 for MCX-N9XX-EVK (https://mcuxpresso.nxp.com/en/select)
+- MCUXpresso SDK v2.14.2 for FRDM-MCXA153 (https://mcuxpresso.nxp.com/en/select)
 - MCUXpresso IDE v11.9.0
 - Git v2.39.0
 - Teraterm (https://osdn.net/projects/ttssh2/releases/) or RealTerm (https://sourceforge.net/projects/realterm/)
 
 ## 2. Hardware<a name="step2"></a>
 - FRDM-MCXN947 MCU board
-- FRDMSTBI-NMH1000 sensor board (https://www.nxp.com/part/FRDMSTBI-NMH1000) Or
+- FRDM-MCXA153 MCU board
+- FRDMSTBI-NMH1000 sensor board (https://www.nxp.com/part/FRDMSTBI-NMH1000)
 - Hall Switch 3 click board (https://www.mikroe.com/hall-switch-3-click)
 - Personal Computer
 - Mini/micro C USB cable
@@ -50,7 +52,8 @@
 
 ### 3.1 Step 1: Download and Install required Software(s)
 - Install MCUXpresso IDE 2.19.0
-- Download and Install MCXUpresso SDK 2.13.1 for MCX
+- Download and Install MCXUpresso SDK 2.13.1 for MCX-N9XX-EVK
+- Download and Install MCXUpresso SDK 2.14.2 for FRDM-MCXA153
 - Install Git v2.39.0 (for cloning and running west commands)
 - RealTerm (for checking examples output)
 
@@ -61,15 +64,19 @@
 
 ### 3.3 Step 3: Build example projects
 - Open MCUXpresso IDE and select a directory to create your workspace.
-- Install MCXUpresso SDK 2.13.1 for MCX (drag and drop SDK zip into "Installed SDK" view) into MCUXpresso IDE.
+- Install MCXUpresso SDK 2.13.1 for MCX-N9XX-EVK (drag and drop SDK zip into "Installed SDK" view) into MCUXpresso IDE.
+- Install MCXUpresso SDK 2.14.2 for FRDM-MCXA153 (drag and drop SDK zip into "Installed SDK" view) into MCUXpresso IDE.
 - Go to "Quickstart Panel" and click on "Import Project(s) from file system",
 - Select "Project directory (unpacked)" and browse to the cloned project folder.
 - Select example projects that you want to open and run.
 - Right click on project and select build to start building the project.
 
 ### 3.4 Step 4: Run example projects
-- Connect the chosen example project HW: FRDM-MCXN947 with FRDMSTBI-NMH1000 or Hall Switch 3 click board.
-- Right click on project and select "Debug As". Select MCUXpresso IDE LinkServer (inc. CMSIS DAP) probes.
+- Connect the chosen example project HWs:
+  FRDM-MCXN947 with FRDMSTBI-NMH1000 or Hall Switch 3 click board
+  FRDM-MCXA153 with Hall Switch 3 click board
+- Right click on project for chosen MCU and expansion board and select "Debug As".
+- Select MCUXpresso IDE LinkServer (inc. CMSIS DAP) probes.
 - Connect a USB cable between the host PC and the MCU-Link USB port on the target board.
 - Open a serial terminal (RealTerm) with the following settings:
     - 115200 baud rate
@@ -88,6 +95,8 @@
     *Successfully Initialized NMH1000 Sensor* <br>
     *Successfully Applied Sensor Configuration for Mage Wakeup* <br>
     *Waiting for Magnetic Field to Change* <br>
+	
+- Change in magnetic field (place a magnet) near NMH1000, you can see that sensor detect change in magnetic fie
 
 	*Mag Threshold (50) Crossed: Mag Out = 180* <br>
 	*Mag Wake Up Detected* <br>
@@ -104,7 +113,7 @@
 
 #### Project Metadata
 <!----- Boards ----->
-[![Board badge](https://img.shields.io/badge/Board-FRDM&ndash;MCXN947-blue)](https://github.com/search?q=org%3Anxp-appcodehub+FRDM-MCXN947+in%3Areadme&type=Repositories)
+[![Board badge](https://img.shields.io/badge/Board-FRDM&ndash;MCXN947-blue)](https://github.com/search?q=org%3Anxp-appcodehub+FRDM-MCXN947+in%3Areadme&type=Repositories) [![Board badge](https://img.shields.io/badge/Board-FRDM&ndash;MCXA153-blue)](https://github.com/search?q=org%3Anxp-appcodehub+FRDM-MCXA153+in%3Areadme&type=Repositories)
 
 <!----- Categories ----->
 [![Category badge](https://img.shields.io/badge/Category-SENSOR-yellowgreen)](https://github.com/search?q=org%3Anxp-appcodehub+sensor+in%3Areadme&type=Repositories) [![Category badge](https://img.shields.io/badge/Category-LOW%20POWER-yellowgreen)](https://github.com/search?q=org%3Anxp-appcodehub+low_power+in%3Areadme&type=Repositories)
