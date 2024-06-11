@@ -1,6 +1,0 @@
-../drivers/fsl_lpi2c_edma.c:570:13:LPI2C_MasterTransferEdmaHandleIRQ	24	static
-../drivers/fsl_lpi2c_edma.c:542:13:LPI2C_MasterEDMACallback	16	static
-../drivers/fsl_lpi2c_edma.c:113:6:LPI2C_MasterCreateEDMAHandle	32	static
-../drivers/fsl_lpi2c_edma.c:248:10:LPI2C_MasterTransferEDMA	112	static
-../drivers/fsl_lpi2c_edma.c:457:10:LPI2C_MasterTransferGetCountEDMA	16	static
-../drivers/fsl_lpi2c_edma.c:507:10:LPI2C_MasterTransferAbortEDMA	16	static

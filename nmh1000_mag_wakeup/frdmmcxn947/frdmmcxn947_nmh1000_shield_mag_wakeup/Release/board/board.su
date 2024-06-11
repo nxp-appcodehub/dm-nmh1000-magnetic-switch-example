@@ -1,3 +1,0 @@
-../board/board.c:28:6:BOARD_InitDebugConsole	8	static
-../board/board.c:44:6:BOARD_InitDebugConsole_Core1	8	static
-../board/board.c:232:6:BOARD_PowerMode_OD	24	static

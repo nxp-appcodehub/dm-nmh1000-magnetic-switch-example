@@ -5,11 +5,11 @@
  * Generated linker script file for MCXN947
  * Created from linkscript.ldt by FMCreateLinkLibraries
  * Using Freemarker v2.3.30
- * MCUXpresso IDE v11.9.1 [Build 2170] [2024-04-19] on Jun 11, 2024, 10:49:26 AM
+ * MCUXpresso IDE v11.9.1 [Build 2170] [2024-04-19] on Jun 11, 2024, 2:26:26 PM
  */
 
-INCLUDE "frdmmcxn947_a8974_shield_tap_motion_wakeup_Release_library.ld"
-INCLUDE "frdmmcxn947_a8974_shield_tap_motion_wakeup_Release_memory.ld"
+INCLUDE "frdmmcxn947_nmh1000_shield_mag_wakeup_Release_library.ld"
+INCLUDE "frdmmcxn947_nmh1000_shield_mag_wakeup_Release_memory.ld"
 
 ENTRY(ResetISR)
 

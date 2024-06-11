@@ -1,8 +1,0 @@
-../board/pin_mux.c:63:6:BOARD_InitPins	0	static
-../board/pin_mux.c:35:6:BOARD_InitBootPins	0	static
-../board/pin_mux.c:231:6:LPI2C2_InitPins	0	static
-../board/pin_mux.c:303:6:LPI2C2_DeinitPins	0	static
-../board/pin_mux.c:379:6:LPSPI1_InitPins	0	static
-../board/pin_mux.c:501:6:LPSPI1_DeinitPins	0	static
-../board/pin_mux.c:620:6:LPUART4_InitPins	0	static
-../board/pin_mux.c:694:6:LPUART4_DeinitPins	0	static

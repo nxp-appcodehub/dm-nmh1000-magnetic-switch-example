@@ -1,3 +1,0 @@
-../interfaces/sensor_io_i2c.c:24:9:Sensor_I2C_BlockWrite	48	static
-../interfaces/sensor_io_i2c.c:71:9:Sensor_I2C_Write	48	static
-../interfaces/sensor_io_i2c.c:105:9:Sensor_I2C_Read	32	static

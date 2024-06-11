@@ -1,5 +1,0 @@
-../sensors/nmh1000_drv.c:27:9:NMH1000_I2C_Initialize	40	static
-../sensors/nmh1000_drv.c:59:6:NMH1000_I2C_SetIdleTask	0	static
-../sensors/nmh1000_drv.c:65:9:NMH1000_I2C_Configure	8	static
-../sensors/nmh1000_drv.c:92:9:NMH1000_I2C_ReadData	16	static
-../sensors/nmh1000_drv.c:121:9:NMH1000_I2C_DeInit	24	static

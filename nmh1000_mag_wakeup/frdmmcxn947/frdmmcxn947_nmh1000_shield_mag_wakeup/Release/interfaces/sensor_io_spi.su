@@ -1,3 +1,0 @@
-../interfaces/sensor_io_spi.c:24:9:Sensor_SPI_BlockWrite	48	static
-../interfaces/sensor_io_spi.c:71:9:Sensor_SPI_Write	40	static
-../interfaces/sensor_io_spi.c:104:9:Sensor_SPI_Read	32	static
