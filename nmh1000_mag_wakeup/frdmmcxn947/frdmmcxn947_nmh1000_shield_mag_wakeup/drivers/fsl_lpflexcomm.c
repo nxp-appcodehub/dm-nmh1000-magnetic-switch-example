@@ -45,7 +45,7 @@ static void LP_FLEXCOMM_CommonIRQHandler(uint32_t instance);
 static const uint32_t s_lpflexcommBaseAddrs[] = LP_FLEXCOMM_BASE_ADDRS;
 
 /*! @brief Array to map LP_FLEXCOMM instance PTRS. */
-static LP_FLEXCOMM_Type *s_lpflexcommBase[] = LP_FLEXCOMM_BASE_PTRS;
+static LP_FLEXCOMM_Type *const s_lpflexcommBase[] = LP_FLEXCOMM_BASE_PTRS;
 
 /*! @brief Pointers to real IRQ handlers installed by drivers for each instance. */
 static lpflexcomm_irq_handler_t s_lpflexcommIrqHandler[LP_FLEXCOMM_PERIPH_LPI2C + 1][ARRAY_SIZE(s_lpflexcommBaseAddrs)];
@@ -88,6 +88,16 @@ static bool LP_FLEXCOMM_PeripheralIsPresent(LP_FLEXCOMM_Type *base, LP_FLEXCOMM_
     {
         return false;
     }
+}
+
+/*! @brief Returns for LP_FLEXCOMM base address. */
+uint32_t LP_FLEXCOMM_GetBaseAddress(uint32_t instance)
+{
+    if(instance < (uint32_t)ARRAY_SIZE(s_lpflexcommBaseAddrs))
+    {
+        return s_lpflexcommBaseAddrs[instance];
+    }
+    return 0U;
 }
 
 /*! brief Returns for LP_FLEXCOMM interrupt source,see #_lpflexcomm_interrupt_flag. */

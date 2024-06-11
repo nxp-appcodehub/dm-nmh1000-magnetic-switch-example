@@ -1,0 +1,8 @@
+../gpio_driver/gpio_driver.c:42:24:ksdk_gpio_get_version	8	static
+../gpio_driver/gpio_driver.c:93:6:ksdk_gpio_set_pin	0	static
+../gpio_driver/gpio_driver.c:105:6:ksdk_gpio_clr_pin	0	static
+../gpio_driver/gpio_driver.c:117:6:ksdk_gpio_toggle_pin	0	static
+../gpio_driver/gpio_driver.c:129:6:ksdk_gpio_write_pin	0	static
+../gpio_driver/gpio_driver.c:141:10:ksdk_gpio_read_pin	0	static
+../gpio_driver/gpio_driver.c:53:6:ksdk_gpio_pin_init	24	static
+../gpio_driver/gpio_driver.c:153:6:ksdk_gpio_handle_interrupt	32	static

@@ -41,9 +41,6 @@ enum _lpi2c_transfer_states
     kWaitForCompletionState,
 };
 
-/*! @brief Typedef for interrupt handler. */
-typedef void (*lpi2c_isr_t)(LPI2C_Type *base, void *handle);
-
 /*!
  * @brief Used for conversion from `lpflexcomm_irq_handler_t` to `lpi2c_master_isr_t`
  */
@@ -126,7 +123,6 @@ void LPI2C_MasterCreateEDMAHandle(LPI2C_Type *base,
 
     /* Look up instance number */
     uint32_t instance = LPI2C_GetInstance(base);
-    lpi2c_to_lpflexcomm_edma_t handler;
 
     /* Clear out the handle. */
     (void)memset(handle, 0, sizeof(*handle));
@@ -139,9 +135,21 @@ void LPI2C_MasterCreateEDMAHandle(LPI2C_Type *base,
     handle->rx                 = rxDmaHandle;
     handle->tx                 = (FSL_FEATURE_LPI2C_HAS_SEPARATE_DMA_RX_TX_REQn(base) > 0) ? txDmaHandle : rxDmaHandle;
 
-    handler.lpi2c_master_handler = LPI2C_MasterTransferEdmaHandleIRQ;
+    if(LP_FLEXCOMM_GetBaseAddress(instance) != 0U)
+    {        
+        lpi2c_to_lpflexcomm_edma_t handler;
+        handler.lpi2c_master_handler = LPI2C_MasterTransferEdmaHandleIRQ;
 
-    LP_FLEXCOMM_SetIRQHandler(instance, handler.lpflexcomm_handler, handle, LP_FLEXCOMM_PERIPH_LPI2C);
+        LP_FLEXCOMM_SetIRQHandler(instance, handler.lpflexcomm_handler, handle, LP_FLEXCOMM_PERIPH_LPI2C);
+    }
+    else
+    {
+        /* Save the handle in global variables to support the double weak mechanism. */
+        s_lpi2cMasterHandle[instance] = handle;
+
+        /* Set LPI2C_MasterTransferEdmaHandleIRQ as LPI2C DMA IRQ handler */
+        s_lpi2cMasterIsr = LPI2C_MasterTransferEdmaHandleIRQ;
+    }
 
     /* Enable interrupt in NVIC. */
     (void)EnableIRQ(kLpi2cIrqs[instance]);

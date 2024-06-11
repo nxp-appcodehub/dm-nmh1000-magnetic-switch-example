@@ -1,0 +1,11 @@
+../drivers/fsl_lpspi_edma.c:74:13:LPSPI_SeparateEdmaReadData	0	static
+../drivers/fsl_lpspi_edma.c:520:13:EDMA_LpspiMasterCallback	16	static
+../drivers/fsl_lpspi_edma.c:953:13:EDMA_LpspiSlaveCallback	16	static
+../drivers/fsl_lpspi_edma.c:148:6:LPSPI_MasterTransferCreateHandleEDMA	24	static
+../drivers/fsl_lpspi_edma.c:200:10:LPSPI_MasterTransferEDMA	208	static
+../drivers/fsl_lpspi_edma.c:571:6:LPSPI_MasterTransferAbortEDMA	8	static
+../drivers/fsl_lpspi_edma.c:593:10:LPSPI_MasterTransferGetCountEDMA	16	static
+../drivers/fsl_lpspi_edma.c:640:6:LPSPI_SlaveTransferCreateHandleEDMA	24	static
+../drivers/fsl_lpspi_edma.c:683:10:LPSPI_SlaveTransferEDMA	184	static
+../drivers/fsl_lpspi_edma.c:1004:6:LPSPI_SlaveTransferAbortEDMA	8	static
+../drivers/fsl_lpspi_edma.c:1026:10:LPSPI_SlaveTransferGetCountEDMA	16	static

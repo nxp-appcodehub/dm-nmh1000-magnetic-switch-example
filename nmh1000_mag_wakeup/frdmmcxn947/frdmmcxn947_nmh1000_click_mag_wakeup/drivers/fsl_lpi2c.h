@@ -4,8 +4,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _FSL_LPI2C_H_
-#define _FSL_LPI2C_H_
+#ifndef FSL_LPI2C_H_
+#define FSL_LPI2C_H_
 
 #include <stddef.h>
 #include "fsl_device_registers.h"
@@ -24,7 +24,7 @@
 /*! @name Driver version */
 /*@{*/
 /*! @brief LPI2C driver version. */
-#define FSL_LPI2C_DRIVER_VERSION (MAKE_VERSION(2, 1, 1))
+#define FSL_LPI2C_DRIVER_VERSION (MAKE_VERSION(2, 2, 2))
 /*@}*/
 
 /*! @brief Retry times for waiting flag. */
@@ -375,7 +375,7 @@ typedef enum _lpi2c_slave_transfer_event
                                                  (slave-transmitter role). */
     kLPI2C_SlaveReceiveEvent = 0x04U,       /*!< Callback is requested to provide a buffer in which to place received
                                                   data (slave-receiver role). */
-    kLPI2C_SlaveTransmitAckEvent = 0x08U,   /*!< Callback needs to either transmit an ACK or NACK.
+    kLPI2C_SlaveTransmitAckEvent   = 0x08U, /*!< Callback needs to either transmit an ACK or NACK.
               When this event is set, the driver will no longer decide to reply to ack/nack. */
     kLPI2C_SlaveRepeatedStartEvent = 0x10U, /*!< A repeated start was detected. */
     kLPI2C_SlaveCompletionEvent    = 0x20U, /*!< A stop was detected, completing the transfer. */
@@ -435,6 +435,14 @@ struct _lpi2c_slave_handle
 /*! Array to map LPI2C instance number to IRQ number, used internally for LPI2C master interrupt and EDMA transactional
 APIs. */
 extern IRQn_Type const kLpi2cIrqs[];
+
+/*! Pointer to master IRQ handler for each instance, used internally for LPI2C master interrupt and EDMA transactional
+APIs. */
+extern lpi2c_master_isr_t s_lpi2cMasterIsr;
+
+/*! Pointers to master handles for each instance, used internally for LPI2C master interrupt and EDMA transactional
+APIs. */
+extern void *s_lpi2cMasterHandle[];
 
 /*******************************************************************************
  * API
@@ -1319,7 +1327,7 @@ void LPI2C_SlaveTransferAbort(LPI2C_Type *base, lpi2c_slave_handle_t *handle);
  * @note This function does not need to be called unless you are reimplementing the
  *  non blocking API's interrupt handler routines to add special functionality.
  * @param instance The LPI2C instance.
- * @param handle Pointer to lpi2c_slave_handle_t structure which stores the transfer state.
+ * @param lpi2cSlaveHandle Pointer to lpi2c_slave_handle_t structure which stores the transfer state.
  */
 void LPI2C_SlaveTransferHandleIRQ(uint32_t instance, void *lpi2cSlaveHandle);
 
@@ -1331,4 +1339,4 @@ void LPI2C_SlaveTransferHandleIRQ(uint32_t instance, void *lpi2cSlaveHandle);
 }
 #endif
 
-#endif /* _FSL_LPI2C_H_ */
+#endif /* FSL_LPI2C_H_ */

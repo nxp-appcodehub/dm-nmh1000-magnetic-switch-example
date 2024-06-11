@@ -4,8 +4,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _FSL_LPUART_H_
-#define _FSL_LPUART_H_
+#ifndef FSL_LPUART_H_
+#define FSL_LPUART_H_
 
 #include "fsl_common.h"
 #include "fsl_lpflexcomm.h"
@@ -22,7 +22,7 @@
 /*! @name Driver version */
 /*@{*/
 /*! @brief LPUART driver version. */
-#define FSL_LPUART_DRIVER_VERSION (MAKE_VERSION(2, 2, 1))
+#define FSL_LPUART_DRIVER_VERSION (MAKE_VERSION(2, 3, 0))
 /*@}*/
 
 /*! @brief Retry times for waiting flag. */
@@ -299,7 +299,8 @@ typedef struct _lpuart_timeout_config
 {
     uint16_t rxExtendedTimeoutValue;            /*!< The number of bits since the last stop bit that is required for an
                   idle condition to be detected. Enable this will disable rxIdleType and rxIdleConfig. Set to 0 to disable. */
-    uint16_t txExtendedTimeoutValue;            /*!< . */
+    uint16_t txExtendedTimeoutValue;            /*!< The transmitter idle time in number of bits (baud rate) whenever an 
+                  idle character is queued through the transmit FIFO. */
     lpuart_timeout_counter_config_t rxCounter0; /*!< Rx counter 0 configuration. */
     lpuart_timeout_counter_config_t rxCounter1; /*!< Rx counter 1 configuration. */
     lpuart_timeout_counter_config_t txCounter0; /*!< Tx counter 0 configuration. */
@@ -382,6 +383,7 @@ struct _lpuart_handle
 #if defined(FSL_FEATURE_LPUART_HAS_7BIT_DATA_SUPPORT) && FSL_FEATURE_LPUART_HAS_7BIT_DATA_SUPPORT
     bool isSevenDataBits; /*!< Seven data bits flag. */
 #endif
+    bool is16bitData; /*!< 16bit data bits flag, only used for 9bit or 10bit data */
 };
 
 /* Typedef for interrupt handler. */
@@ -421,6 +423,20 @@ static inline void LPUART_SoftwareReset(LPUART_Type *base)
     base->GLOBAL |= LPUART_GLOBAL_RST_MASK;
     base->GLOBAL &= ~LPUART_GLOBAL_RST_MASK;
 }
+
+/*!
+ * @brief Sets the LPUART using 16bit transmit, only for 9bit or 10bit mode.
+ *
+ * This function Enable 16bit Data transmit in lpuart_handle_t.
+ *
+ * @param handle LPUART handle pointer.
+ * @param enable true to enable, false to disable.
+ */
+static inline void LPUART_TransferEnable16Bit(lpuart_handle_t *handle,bool enable)
+{
+    handle->is16bitData =  enable;
+}
+
 /* @} */
 #endif /*FSL_FEATURE_LPUART_HAS_GLOBAL*/
 
@@ -908,6 +924,20 @@ void LPUART_SendAddress(LPUART_Type *base, uint8_t address);
 status_t LPUART_WriteBlocking(LPUART_Type *base, const uint8_t *data, size_t length);
 
 /*!
+ * @brief Writes to the transmitter register using a blocking method in 9bit or 10bit mode.
+ *
+ * @note This function only support 9bit or 10bit transfer.
+ *       Please make sure only 10bit of data is valid and other bits are 0.
+ *
+ * @param base LPUART peripheral base address.
+ * @param data Start address of the data to write.
+ * @param length Size of the data to write.
+ * @retval kStatus_LPUART_Timeout Transmission timed out and was aborted.
+ * @retval kStatus_Success Successfully wrote all data.
+ */
+status_t LPUART_WriteBlocking16bit(LPUART_Type *base, const uint16_t *data, size_t length);
+
+/*!
  * @brief Reads the receiver data register using a blocking method.
  *
  * This function polls the receiver register, waits for the receiver register full or receiver FIFO
@@ -924,6 +954,23 @@ status_t LPUART_WriteBlocking(LPUART_Type *base, const uint8_t *data, size_t len
  * @retval kStatus_Success Successfully received all data.
  */
 status_t LPUART_ReadBlocking(LPUART_Type *base, uint8_t *data, size_t length);
+
+/*!
+ * @brief Reads the receiver data register in 9bit or 10bit mode.
+ *
+ * @note This function only support 9bit or 10bit transfer.
+ *
+ * @param base LPUART peripheral base address.
+ * @param data Start address of the buffer to store the received data by 16bit, only 10bit is valid.
+ * @param length Size of the buffer.
+ * @retval kStatus_LPUART_RxHardwareOverrun Receiver overrun happened while receiving data.
+ * @retval kStatus_LPUART_NoiseError Noise error happened while receiving data.
+ * @retval kStatus_LPUART_FramingError Framing error happened while receiving data.
+ * @retval kStatus_LPUART_ParityError Parity error happened while receiving data.
+ * @retval kStatus_LPUART_Timeout Transmission timed out and was aborted.
+ * @retval kStatus_Success Successfully received all data.
+ */
+status_t LPUART_ReadBlocking16bit(LPUART_Type *base, uint16_t *data, size_t length);
 
 /* @} */
 
@@ -1125,4 +1172,4 @@ void LPUART_TransferHandleErrorIRQ(LPUART_Type *base, void *irqHandle);
 
 /*! @}*/
 
-#endif /* _FSL_LPUART_H_ */
+#endif /* FSL_LPUART_H_ */

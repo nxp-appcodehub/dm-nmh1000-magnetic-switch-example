@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _FSL_COMMON_ARM_H_
-#define _FSL_COMMON_ARM_H_
+#ifndef FSL_COMMON_ARM_H_
+#define FSL_COMMON_ARM_H_
 
 /*
  * For CMSIS pack RTE.
@@ -220,6 +220,12 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
          ((2UL == sizeof(*(addr))) ? _SDK_AtomicLocalAdd2Byte((volatile uint16_t *)(volatile void *)(addr), (uint16_t)(val)) : \
                                      _SDK_AtomicLocalAdd4Byte((volatile uint32_t *)(volatile void *)(addr), (uint32_t)(val))))
 
+#define SDK_ATOMIC_LOCAL_SUB(addr, val)                                                                                        \
+    ((1UL == sizeof(*(addr))) ?                                                                                                \
+         _SDK_AtomicLocalSub1Byte((volatile uint8_t *)(volatile void *)(addr), (uint8_t)(val)) :                               \
+         ((2UL == sizeof(*(addr))) ? _SDK_AtomicLocalSub2Byte((volatile uint16_t *)(volatile void *)(addr), (uint16_t)(val)) : \
+                                     _SDK_AtomicLocalSub4Byte((volatile uint32_t *)(volatile void *)(addr), (uint32_t)(val))))
+
 #define SDK_ATOMIC_LOCAL_SET(addr, bits)                                                                                        \
     ((1UL == sizeof(*(addr))) ?                                                                                                 \
          _SDK_AtomicLocalSet1Byte((volatile uint8_t *)(volatile void *)(addr), (uint8_t)(bits)) :                               \
@@ -255,7 +261,16 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
         s_atomicOldInt = DisableGlobalIRQ(); \
         *(addr) += (val);                    \
         EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
+    } while (false)
+
+#define SDK_ATOMIC_LOCAL_SUB(addr, val)      \
+    do                                       \
+    {                                        \
+        uint32_t s_atomicOldInt;             \
+        s_atomicOldInt = DisableGlobalIRQ(); \
+        *(addr) -= (val);                    \
+        EnableGlobalIRQ(s_atomicOldInt);     \
+    } while (false)
 
 #define SDK_ATOMIC_LOCAL_SET(addr, bits)     \
     do                                       \
@@ -264,7 +279,7 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
         s_atomicOldInt = DisableGlobalIRQ(); \
         *(addr) |= (bits);                   \
         EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
+    } while (false)
 
 #define SDK_ATOMIC_LOCAL_CLEAR(addr, bits)   \
     do                                       \
@@ -273,7 +288,7 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
         s_atomicOldInt = DisableGlobalIRQ(); \
         *(addr) &= ~(bits);                  \
         EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
+    } while (false)
 
 #define SDK_ATOMIC_LOCAL_TOGGLE(addr, bits)  \
     do                                       \
@@ -282,7 +297,7 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
         s_atomicOldInt = DisableGlobalIRQ(); \
         *(addr) ^= (bits);                   \
         EnableGlobalIRQ(s_atomicOldInt);     \
-    } while (0)
+    } while (false)
 
 #define SDK_ATOMIC_LOCAL_CLEAR_AND_SET(addr, clearBits, setBits) \
     do                                                           \
@@ -291,7 +306,7 @@ static inline void _SDK_AtomicLocalClearAndSet4Byte(volatile uint32_t *addr, uin
         s_atomicOldInt = DisableGlobalIRQ();                     \
         *(addr)        = (*(addr) & ~(clearBits)) | (setBits);   \
         EnableGlobalIRQ(s_atomicOldInt);                         \
-    } while (0)
+    } while (false)
 
 #endif
 /* @} */
@@ -824,4 +839,4 @@ uint32_t MSDK_GetCpuCycleCount(void);
 
 /*! @} */
 
-#endif /* _FSL_COMMON_ARM_H_ */
+#endif /* FSL_COMMON_ARM_H_ */

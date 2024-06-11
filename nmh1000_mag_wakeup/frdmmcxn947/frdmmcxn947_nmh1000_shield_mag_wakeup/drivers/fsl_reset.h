@@ -25,8 +25,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief reset driver version 1.0.0. */
-#define FSL_RESET_DRIVER_VERSION (MAKE_VERSION(1, 0, 0))
+/*! @brief reset driver version 2.4.0 */
+#define FSL_RESET_DRIVER_VERSION (MAKE_VERSION(2, 4, 0))
 /*@}*/
 
 /*!
@@ -80,7 +80,7 @@ typedef enum _SYSCON_RSTn
     kUSB0_FS_RST_SHIFT_RSTn     = 65536 | 25U, /**< USB0-FS reset control */
     kCTIMER0_RST_SHIFT_RSTn     = 65536 | 26U, /**< CTimer 0 reset control */
     kCTIMER1_RST_SHIFT_RSTn     = 65536 | 27U, /**< CTimer 1 reset control */
-    kSMARTDMA_RST_SHIFT_RSTn    = 65536 | 31U, /**< SmartDMA reset control */
+    kSMART_DMA_RST_SHIFT_RSTn   = 65536 | 31U, /**< SmartDMA reset control */
 
     kDMA1_RST_SHIFT_RSTn       = 131072 | 1U,  /**< DMA1 reset control */
     kENET_RST_SHIFT_RSTn       = 131072 | 2U,  /**< Ethernet reset control */
@@ -238,6 +238,19 @@ void RESET_ClearPeripheralReset(reset_ip_name_t peripheral);
  *                   and reset bit position in the reset register.
  */
 void RESET_PeripheralReset(reset_ip_name_t peripheral);
+
+/*!
+ * @brief Release peripheral module.
+ *
+ * Release peripheral module.
+ *
+ * @param peripheral Peripheral to release. The enum argument contains encoding of reset register
+ *                   and reset bit position in the reset register.
+ */
+static inline void RESET_ReleasePeripheralReset(reset_ip_name_t peripheral)
+{
+    RESET_ClearPeripheralReset(peripheral);
+}
 
 #if defined(__cplusplus)
 }

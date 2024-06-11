@@ -5,7 +5,7 @@
  * Generated linker script file for MCXN947
  * Created from memory.ldt by FMCreateLinkMemory
  * Using Freemarker v2.3.30
- * MCUXpresso IDE v11.9.0_prc1 [Build 2089] [2023-11-02] on Apr 1, 2024, 8:07:39 PM
+ * MCUXpresso IDE v11.9.1 [Build 2170] [2024-04-19] on Jun 11, 2024, 2:12:53 PM
  */
 
 MEMORY
@@ -13,7 +13,6 @@ MEMORY
   /* Define each memory region */
   PROGRAM_FLASH0 (rx) : ORIGIN = 0x0, LENGTH = 0x100000 /* 1M bytes (alias Flash) */  
   PROGRAM_FLASH1 (rx) : ORIGIN = 0x100000, LENGTH = 0x100000 /* 1M bytes (alias Flash2) */  
-  QSPI_FLASH (rx) : ORIGIN = 0x80000000, LENGTH = 0x800000 /* 8M bytes (alias Flash3) */  
   SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x60000 /* 384K bytes (alias RAM) */  
   SRAMX (rwx) : ORIGIN = 0x4000000, LENGTH = 0x18000 /* 96K bytes (alias RAM2) */  
   SRAMH (rwx) : ORIGIN = 0x20060000, LENGTH = 0x8000 /* 32K bytes (alias RAM3) */  
@@ -29,10 +28,6 @@ MEMORY
   __base_Flash2 = 0x100000 ; /* Flash2 */  
   __top_PROGRAM_FLASH1 = 0x100000 + 0x100000 ; /* 1M bytes */  
   __top_Flash2 = 0x100000 + 0x100000 ; /* 1M bytes */  
-  __base_QSPI_FLASH = 0x80000000  ; /* QSPI_FLASH */  
-  __base_Flash3 = 0x80000000 ; /* Flash3 */  
-  __top_QSPI_FLASH = 0x80000000 + 0x800000 ; /* 8M bytes */  
-  __top_Flash3 = 0x80000000 + 0x800000 ; /* 8M bytes */  
   __base_SRAM = 0x20000000  ; /* SRAM */  
   __base_RAM = 0x20000000 ; /* RAM */  
   __top_SRAM = 0x20000000 + 0x60000 ; /* 384K bytes */  

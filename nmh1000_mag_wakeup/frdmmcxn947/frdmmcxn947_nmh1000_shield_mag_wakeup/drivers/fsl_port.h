@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * Copyright 2016-2020, 2022 NXP
+ * Copyright 2016-2022 NXP
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef _FSL_PORT_H_
-#define _FSL_PORT_H_
+#ifndef FSL_PORT_H_
+#define FSL_PORT_H_
 
 #include "fsl_common.h"
 
@@ -27,7 +27,7 @@
 /*! @name Driver version */
 /*@{*/
 /*! @brief PORT driver version. */
-#define FSL_PORT_DRIVER_VERSION (MAKE_VERSION(2, 4, 0))
+#define FSL_PORT_DRIVER_VERSION (MAKE_VERSION(2, 4, 1))
 /*@}*/
 
 #if defined(FSL_FEATURE_PORT_HAS_PULL_ENABLE) && FSL_FEATURE_PORT_HAS_PULL_ENABLE
@@ -423,14 +423,14 @@ static inline void PORT_SetMultipleInterruptPinsConfig(PORT_Type *base, uint32_t
 {
     assert(config);
 
-    if (mask & 0xffffU)
+    if (0U != ((uint32_t)mask & 0xffffU))
     {
-        base->GICLR = ((uint32_t)(config << 16)) | (mask & 0xffffU);
+        base->GICLR = ((uint32_t)config << 16U) | ((uint32_t)mask & 0xffffU);
     }
     mask = mask >> 16;
     if (0U != mask)
     {
-        base->GICHR = ((uint32_t)(config << 16)) | (mask & 0xffffU);
+        base->GICHR = ((uint32_t)config << 16U) | ((uint32_t)mask & 0xffffU);
     }
 }
 #endif
@@ -676,4 +676,4 @@ static inline void PORT_ClearAllHighEFTDetectors(PORT_Type *base)
 
 /*! @}*/
 
-#endif /* _FSL_PORT_H_ */
+#endif /* FSL_PORT_H_ */

@@ -1,0 +1,6 @@
+../board/frdmmcxn947.c:45:6:BOARD_BootClockRUN	8	static
+../board/frdmmcxn947.c:65:10:SMC_SetPowerModeWait	0	static
+../board/frdmmcxn947.c:79:10:SMC_SetPowerModeVlpr	0	static
+../board/frdmmcxn947.c:93:10:LPUART4_GetFreq	8	static
+../board/frdmmcxn947.c:108:10:LPI2C2_GetFreq	8	static
+../board/frdmmcxn947.c:124:10:LPSPI1_GetFreq	8	static

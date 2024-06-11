@@ -1,0 +1,10 @@
+../drivers/fsl_lpuart_edma.c:490:6:LPUART_TransferEdmaHandleIRQ	16	static
+../drivers/fsl_lpuart_edma.c:134:13:LPUART_SendEDMACallback	8	static
+../drivers/fsl_lpuart_edma.c:192:6:LPUART_TransferCreateHandleEDMA	48	static
+../drivers/fsl_lpuart_edma.c:270:10:LPUART_SendEDMA	112	static
+../drivers/fsl_lpuart_edma.c:329:10:LPUART_ReceiveEDMA	112	static
+../drivers/fsl_lpuart_edma.c:382:6:LPUART_TransferAbortSendEDMA	8	static
+../drivers/fsl_lpuart_edma.c:404:6:LPUART_TransferAbortReceiveEDMA	8	static
+../drivers/fsl_lpuart_edma.c:157:13:LPUART_ReceiveEDMACallback	16	static
+../drivers/fsl_lpuart_edma.c:430:10:LPUART_TransferGetReceiveCountEDMA	16	static
+../drivers/fsl_lpuart_edma.c:461:10:LPUART_TransferGetSendCountEDMA	16	static

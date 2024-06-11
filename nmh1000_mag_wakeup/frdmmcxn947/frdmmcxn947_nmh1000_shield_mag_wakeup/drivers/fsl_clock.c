@@ -246,6 +246,83 @@ status_t CLOCK_SetupExtClocking(uint32_t iFreq)
 }
 
 /**
+ * @brief   Initialize the external reference clock to given frequency.
+ * @param   iFreq   : Desired frequency (must be equal to exact rate in Hz)
+ * @return  returns success or fail status.
+ */
+status_t CLOCK_SetupExtRefClocking(uint32_t iFreq)
+{
+    uint8_t range = 0U;
+
+    if ((iFreq >= 16000000U) && (iFreq < 20000000U))
+    {
+        range = 0U;
+    }
+    else if ((iFreq >= 20000000U) && (iFreq < 30000000U))
+    {
+        range = 1U;
+    }
+    else if ((iFreq >= 30000000U) && (iFreq < 50000000U))
+    {
+        range = 2U;
+    }
+    else if ((iFreq >= 50000000U) && (iFreq < 66000000U))
+    {
+        range = 3U;
+    }
+    else
+    {
+        return kStatus_InvalidArgument;
+    }
+
+    /* If clock is used by system, return error. */
+    if ((SCG0->SOSCCSR & SCG_SOSCCSR_SOSCSEL_MASK) != 0U)
+    {
+        return (status_t)kStatus_SCG_Busy;
+    }
+
+    /* If sosc is used by PLL and PLL is used by system, return error. */
+    if ((((SCG0->APLLCTRL & SCG_APLLCTRL_SOURCE_MASK) == 0u) && ((SCG0->APLLCSR & SCG_APLLCSR_APLLSEL_MASK) != 0U)) ||
+        (((SCG0->SPLLCTRL & SCG_SPLLCTRL_SOURCE_MASK) == 0u) && ((SCG0->SPLLCSR & SCG_SPLLCSR_SPLLSEL_MASK) != 0U)))
+    {
+        return (status_t)kStatus_SCG_Busy;
+    }
+
+    /* If configure register is locked, return error. */
+    if ((SCG0->SOSCCSR & SCG_SOSCCSR_LK_MASK) != 0U)
+    {
+        return kStatus_ReadOnly;
+    }
+
+    /* De-initializes the SCG SOSC */
+    SCG0->SOSCCSR = SCG_SOSCCSR_SOSCERR_MASK;
+
+    /* Enable LDO */
+    SCG0->LDOCSR |= SCG_LDOCSR_LDOEN_MASK;
+
+    /* Select SOSC source (external reference clock)*/
+    SCG0->SOSCCFG &= ~SCG_SOSCCFG_EREFS_MASK;
+
+    /*Configure SOSC range */
+    SCG0->SOSCCFG |= SCG_SOSCCFG_RANGE(range);
+
+    /* Unlock SOSCCSR */
+    SCG0->SOSCCSR &= ~SCG_SOSCCSR_LK_MASK;
+
+    /* Enable SOSC clock monitor and Enable SOSC */
+    SCG0->SOSCCSR |= (SCG_SOSCCSR_SOSCCM_MASK | SCG_SOSCCSR_SOSCEN_MASK);
+
+    /* Wait for SOSC clock to be valid. */
+    while ((SCG0->SOSCCSR & SCG_SOSCCSR_SOSCVLD_MASK) == 0U)
+    {
+    }
+
+    s_Ext_Clk_Freq = iFreq;
+
+    return kStatus_Success;
+}
+
+/**
  * @brief   Initialize the OSC 32K.
  * @param   id   : OSC 32 kHz output clock to specified modules
  * @return  returns success or fail status.
@@ -452,81 +529,82 @@ void CLOCK_SetPll1MonitorMode(scg_pll1_monitor_mode_t mode)
 }
 
 /*!
- * @brief	Set the additional number of wait-states added to account for the ratio of system clock period to flash access time during full speed power mode.
+ * @brief	Set the additional number of wait-states added to account for the ratio of system clock period to flash access
+ * time during full speed power mode.
  * @param	system_freq_hz	: Input frequency
- * @param	mode	        : Active run mode (voltage level). 
+ * @param	mode	        : Active run mode (voltage level).
  * @return	success or fail status
  */
 status_t CLOCK_SetFLASHAccessCyclesForFreq(uint32_t system_freq_hz, run_mode_t mode)
 {
-  uint32_t  num_wait_states_added = 3UL; /* Default 3 additional wait states */
-  switch ( mode )
-  {
-      case kMD_Mode:
-      {
-         if (system_freq_hz > 50000000)
-         {
-            return kStatus_Fail;
-         }
-         if (system_freq_hz >24000000)
-         {
-             num_wait_states_added = 1U;
-         }
-         else
-         {
-             num_wait_states_added = 0U;
-         }          
-         break;
-      }
-      case kSD_Mode:
-      {
-         if (system_freq_hz > 100000000)
-         {
-            return kStatus_Fail;
-         }
-         if (system_freq_hz > 64000000)
-         {
-             num_wait_states_added = 2U;
-         }          
-         else if (system_freq_hz > 36000000)
-         {
-             num_wait_states_added = 1U;
-         }
-         else
-         {
-             num_wait_states_added = 0U;
-         }         
-         break;
-      }
-      case kOD_Mode:
-      {
-         if (system_freq_hz > 150000000)
-         {
-            return kStatus_Fail;
-         }
-         if (system_freq_hz > 100000000)
-         {
-             num_wait_states_added = 3U;
-         }
-         else if (system_freq_hz > 64000000)
-         {
-             num_wait_states_added = 2U;
-         }
-         else if (system_freq_hz > 36000000)
-         {
-             num_wait_states_added = 1U;
-         }
-         else
-         {
-             num_wait_states_added = 0U;
-         }    
-      }     
-  }
-  
-  /* additional wait-states are added */
-  FMU0 -> FCTRL = (FMU0 -> FCTRL & 0xFFFFFFF0UL) | (num_wait_states_added & 0xFUL);
-  
-  return kStatus_Success;
+    uint32_t num_wait_states_added = 3UL; /* Default 3 additional wait states */
+    switch (mode)
+    {
+        case kMD_Mode:
+        {
+            if (system_freq_hz > 50000000)
+            {
+                return kStatus_Fail;
+            }
+            if (system_freq_hz > 24000000)
+            {
+                num_wait_states_added = 1U;
+            }
+            else
+            {
+                num_wait_states_added = 0U;
+            }
+            break;
+        }
+        case kSD_Mode:
+        {
+            if (system_freq_hz > 100000000)
+            {
+                return kStatus_Fail;
+            }
+            if (system_freq_hz > 64000000)
+            {
+                num_wait_states_added = 2U;
+            }
+            else if (system_freq_hz > 36000000)
+            {
+                num_wait_states_added = 1U;
+            }
+            else
+            {
+                num_wait_states_added = 0U;
+            }
+            break;
+        }
+        case kOD_Mode:
+        {
+            if (system_freq_hz > 150000000)
+            {
+                return kStatus_Fail;
+            }
+            if (system_freq_hz > 100000000)
+            {
+                num_wait_states_added = 3U;
+            }
+            else if (system_freq_hz > 64000000)
+            {
+                num_wait_states_added = 2U;
+            }
+            else if (system_freq_hz > 36000000)
+            {
+                num_wait_states_added = 1U;
+            }
+            else
+            {
+                num_wait_states_added = 0U;
+            }
+        }
+    }
+
+    /* additional wait-states are added */
+    FMU0->FCTRL = (FMU0->FCTRL & 0xFFFFFFF0UL) | (num_wait_states_added & 0xFUL);
+
+    return kStatus_Success;
 }
 
 /*!
@@ -823,10 +901,10 @@ uint32_t CLOCK_GetFreq(clock_name_t clockName)
             freq = CLOCK_GetOsc32KFreq((uint32_t)kCLOCK_Osc32kToMain);
             break;
         case kCLOCK_Pll0Out:
-            freq = CLOCK_GetPll1OutFreq();
+            freq = CLOCK_GetPll0OutFreq();
             break;
         case kCLOCK_Pll1Out:
-            freq = CLOCK_GetPll0OutFreq();
+            freq = CLOCK_GetPll1OutFreq();
             break;
         case kCLOCK_UsbPllOut:
             // freq = CLOCK_GetPll0OutFreq();
@@ -3028,4 +3106,25 @@ bool CLOCK_EnableUsbhsClock(void)
         __ASM("nop");
     }
     return true;
+}
+
+/**
+ * @brief   FIRC Auto Trim With SOF.
+ * @return  returns success or fail status.
+ */
+status_t CLOCK_FIRCAutoTrimWithSOF(void)
+{
+    /* System OSC Clock Monitor is disabled */
+    CLOCK_SetSysOscMonitorMode(kSCG_SysOscMonitorDisable);
+
+    firc_trim_config_t fircAutoTrimConfig = {
+        .trimMode = kSCG_FircTrimUpdate,        /* FIRC trim is enabled and trim value update is enabled */
+        .trimSrc  = kSCG_FircTrimSrcUsb0,       /* Trim source is USB0 start of frame (1kHz) */
+        .trimDiv  = 1U,                         /* Divided value */
+        .trimCoar = 0U,                         /* Trim value, see Reference Manual for more information */
+        .trimFine = 0U,                         /* Trim value, see Reference Manual for more information */
+    };
+    CLOCK_FROHFTrimConfig(fircAutoTrimConfig);
+
+    return (status_t)kStatus_Success;
 }

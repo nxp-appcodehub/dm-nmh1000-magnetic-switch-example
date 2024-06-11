@@ -1,0 +1,15 @@
+../drivers/fsl_lpuart_cmsis.c:471:27:LPUARTx_GetVersion	8	static
+../drivers/fsl_lpuart_cmsis.c:476:31:LPUARTx_GetCapabilities	0	static
+../drivers/fsl_lpuart_cmsis.c:481:16:LPUARTx_SetModemControl	0	static
+../drivers/fsl_lpuart_cmsis.c:486:31:LPUARTx_GetModemStatus	0	static
+../drivers/fsl_lpuart_cmsis.c:1067:13:KSDK_LPUART_NonBlockingCallback	0	static
+../drivers/fsl_lpuart_cmsis.c:2832:16:LPUART4_NonBlockingTransfer	0	static
+../drivers/fsl_lpuart_cmsis.c:2796:16:LPUART4_NonBlockingUninitialize	8	static
+../drivers/fsl_lpuart_cmsis.c:2868:25:LPUART4_NonBlockingGetStatus	8	static
+../drivers/fsl_lpuart_cmsis.c:2842:17:LPUART4_NonBlockingGetRxCount	16	static
+../drivers/fsl_lpuart_cmsis.c:2837:17:LPUART4_NonBlockingGetTxCount	16	static
+../drivers/fsl_lpuart_cmsis.c:2827:16:LPUART4_NonBlockingReceive	16	static
+../drivers/fsl_lpuart_cmsis.c:2822:16:LPUART4_NonBlockingSend	16	static
+../drivers/fsl_lpuart_cmsis.c:2804:16:LPUART4_NonBlockingPowerControl	56	static
+../drivers/fsl_lpuart_cmsis.c:2788:16:LPUART4_NonBlockingInitialize	8	static
+../drivers/fsl_lpuart_cmsis.c:2847:16:LPUART4_NonBlockingControl	64	static

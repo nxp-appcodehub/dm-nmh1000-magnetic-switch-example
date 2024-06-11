@@ -45,6 +45,8 @@
  */
 spc_power_domain_low_power_mode_t SPC_GetPowerDomainLowPowerMode(SPC_Type *base, spc_power_domain_id_t powerDomainId)
 {
+    assert((uint8_t)powerDomainId < SPC_PD_STATUS_COUNT);
+
     uint32_t val;
 
     val = ((base->PD_STATUS[(uint8_t)powerDomainId] & SPC_PD_STATUS_LP_MODE_MASK) >> SPC_PD_STATUS_LP_MODE_SHIFT);
@@ -181,12 +183,20 @@ status_t SPC_SetActiveModeBandgapModeConfig(SPC_Type *base, spc_bandgap_mode_t m
         }
 
         /* The bandgap mode must be enabled if any regulators' drive strength set as Normal. */
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
         if ((base->ACTIVE_CFG & SPC_ACTIVE_CFG_SYSLDO_VDD_DS_MASK) ==
-                SPC_ACTIVE_CFG_SYSLDO_VDD_DS(kSPC_SysLDO_NormalDriveStrength) ||
-            (base->ACTIVE_CFG & SPC_ACTIVE_CFG_DCDC_VDD_DS_MASK) == SPC_ACTIVE_CFG_DCDC_VDD_DS(kSPC_DCDC_NormalVoltage))
+                SPC_ACTIVE_CFG_SYSLDO_VDD_DS(kSPC_SysLDO_NormalDriveStrength))
         {
             return kStatus_SPC_BandgapModeWrong;
         }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
+        if ((base->ACTIVE_CFG & SPC_ACTIVE_CFG_DCDC_VDD_DS_MASK) == SPC_ACTIVE_CFG_DCDC_VDD_DS(kSPC_DCDC_NormalVoltage))
+        {
+            return kStatus_SPC_BandgapModeWrong;
+        }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
 
         /* state of GLITCH_DETECT_DISABLE will be ignored if bandgap is disabled. */
         if ((base->ACTIVE_CFG & SPC_ACTIVE_CFG_GLITCH_DETECT_DISABLE_MASK) == 0UL)
@@ -240,12 +250,23 @@ status_t SPC_SetLowPowerModeBandgapmodeConfig(SPC_Type *base, spc_bandgap_mode_t
             return kStatus_SPC_BandgapModeWrong;
         }
 
-        /* The bandgap mode must be enabled if any regulators' drive strength set as Normal. */
-        if (((base->LP_CFG & SPC_LP_CFG_DCDC_VDD_DS_MASK) == SPC_LP_CFG_DCDC_VDD_DS(kSPC_DCDC_NormalDriveStrength)) ||
-            ((base->LP_CFG & SPC_LP_CFG_SYSLDO_VDD_DS_MASK) ==
-             SPC_LP_CFG_SYSLDO_VDD_DS(kSPC_SysLDO_NormalDriveStrength)) ||
-            ((base->LP_CFG & SPC_LP_CFG_CORELDO_VDD_DS_MASK) ==
-             SPC_LP_CFG_CORELDO_VDD_DS(kSPC_CoreLDO_NormalDriveStrength)))
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
+        if ((base->LP_CFG & SPC_LP_CFG_DCDC_VDD_DS_MASK) == SPC_LP_CFG_DCDC_VDD_DS(kSPC_DCDC_NormalDriveStrength))
+        {
+            return kStatus_SPC_BandgapModeWrong;
+        }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
+        if ((base->LP_CFG & SPC_LP_CFG_SYSLDO_VDD_DS_MASK) ==
+             SPC_LP_CFG_SYSLDO_VDD_DS(kSPC_SysLDO_NormalDriveStrength))
+        {
+            return kStatus_SPC_BandgapModeWrong;
+        }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
+
+        if ((base->LP_CFG & SPC_LP_CFG_CORELDO_VDD_DS_MASK) ==
+             SPC_LP_CFG_CORELDO_VDD_DS(kSPC_CoreLDO_NormalDriveStrength))
         {
             return kStatus_SPC_BandgapModeWrong;
         }
@@ -281,14 +302,17 @@ void SPC_SetCoreVoltageDetectConfig(SPC_Type *base, const spc_core_voltage_detec
 
     uint32_t reg = 0UL;
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD)
     reg |= (config->option.HVDInterruptEnable) ? SPC_VD_CORE_CFG_HVDIE(1U) : SPC_VD_CORE_CFG_HVDIE(0U);
-    reg |= (config->option.LVDInterruptEnable) ? SPC_VD_CORE_CFG_LVDIE(1U) : SPC_VD_CORE_CFG_LVDIE(0U);
     reg |= (config->option.HVDResetEnable) ? SPC_VD_CORE_CFG_HVDRE(1U) : SPC_VD_CORE_CFG_HVDRE(0U);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD */
+    reg |= (config->option.LVDInterruptEnable) ? SPC_VD_CORE_CFG_LVDIE(1U) : SPC_VD_CORE_CFG_LVDIE(0U);
     reg |= (config->option.LVDResetEnable) ? SPC_VD_CORE_CFG_LVDRE(1U) : SPC_VD_CORE_CFG_LVDRE(0U);
 
     base->VD_CORE_CFG = reg;
 }
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD)
 /*!
  * brief Enables the Core High Voltage Detector in Active mode.
  *
@@ -318,34 +342,6 @@ status_t SPC_EnableActiveModeCoreHighVoltageDetect(SPC_Type *base, bool enable)
     return status;
 }
 
-/*!
- * brief Enables the Core Low Voltage Detector in Active mode.
- *
- * note If the CORE_LDO high voltage detect is enabled in Active mode, please note that the bandgap must be enabled
- * and the drive strength of each regulator must not set to low.
- *
- * param base SPC peripheral base address.
- * param enable Enable/Disable Core LVD.
- *          true    -   Enable Core Low voltage detector in active mode.
- *          false   -   Disable Core Low voltage detector in active mode.
- *
- * retval kStatus_Success Enable Core Low Voltage Detect successfully.
- */
-status_t SPC_EnableActiveModeCoreLowVoltageDetect(SPC_Type *base, bool enable)
-{
-    status_t status = kStatus_Success;
-
-    if (enable)
-    {
-        base->ACTIVE_CFG |= SPC_ACTIVE_CFG_CORE_LVDE_MASK;
-    }
-    else
-    {
-        base->ACTIVE_CFG &= ~SPC_ACTIVE_CFG_CORE_LVDE_MASK;
-    }
-
-    return status;
-}
 
 /*!
  * brief Enables the Core High Voltage Detector in Low Power mode.
@@ -372,6 +368,36 @@ status_t SPC_EnableLowPowerModeCoreHighVoltageDetect(SPC_Type *base, bool enable
     else
     {
         base->LP_CFG &= ~SPC_LP_CFG_CORE_HVDE_MASK;
+    }
+
+    return status;
+}
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD */
+
+/*!
+ * brief Enables the Core Low Voltage Detector in Active mode.
+ *
+ * note If the CORE_LDO high voltage detect is enabled in Active mode, please note that the bandgap must be enabled
+ * and the drive strength of each regulator must not set to low.
+ *
+ * param base SPC peripheral base address.
+ * param enable Enable/Disable Core LVD.
+ *          true    -   Enable Core Low voltage detector in active mode.
+ *          false   -   Disable Core Low voltage detector in active mode.
+ *
+ * retval kStatus_Success Enable Core Low Voltage Detect successfully.
+ */
+status_t SPC_EnableActiveModeCoreLowVoltageDetect(SPC_Type *base, bool enable)
+{
+    status_t status = kStatus_Success;
+
+    if (enable)
+    {
+        base->ACTIVE_CFG |= SPC_ACTIVE_CFG_CORE_LVDE_MASK;
+    }
+    else
+    {
+        base->ACTIVE_CFG &= ~SPC_ACTIVE_CFG_CORE_LVDE_MASK;
     }
 
     return status;
@@ -575,6 +601,7 @@ status_t SPC_EnableLowPowerModeSystemLowVoltageDetect(SPC_Type *base, bool enabl
     return status;
 }
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD) && FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD)
 /*!
  * brief Set IO VDD Low-Voltage level selection.
  *
@@ -744,6 +771,7 @@ status_t SPC_EnableLowPowerModeIOLowVoltageDetect(SPC_Type *base, bool enable)
 
     return status;
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD */
 
 /*!
  * brief Configs external voltage domains
@@ -796,20 +824,20 @@ status_t SPC_SetActiveModeCoreLDORegulatorConfig(SPC_Type *base, const spc_activ
     if ((option->CoreLDODriveStrength == kSPC_CoreLDO_LowDriveStrength) && (SPC_GetActiveModeCoreLDODriveStrength(base) == kSPC_CoreLDO_NormalDriveStrength))
     {
         /* Change Voltage level firstly. */
-        SPC_SetActiveModeCoreLDORegulatorVoltageLevel(base, option->CoreLDOVoltage);
+        (void)SPC_SetActiveModeCoreLDORegulatorVoltageLevel(base, option->CoreLDOVoltage);
         /* Then change drive strength. */
-        SPC_SetActiveModeCoreLDORegulatorDriveStrength(base, option->CoreLDODriveStrength);
+        (void)SPC_SetActiveModeCoreLDORegulatorDriveStrength(base, option->CoreLDODriveStrength);
     }
 
     if (option->CoreLDODriveStrength == kSPC_CoreLDO_NormalDriveStrength)
     {
         /* Change drive strength firstly. */
-        SPC_SetActiveModeCoreLDORegulatorDriveStrength(base, option->CoreLDODriveStrength);
+        (void)SPC_SetActiveModeCoreLDORegulatorDriveStrength(base, option->CoreLDODriveStrength);
         /* Then change Voltage level. */
-        SPC_SetActiveModeCoreLDORegulatorVoltageLevel(base, option->CoreLDOVoltage);
+        (void)SPC_SetActiveModeCoreLDORegulatorVoltageLevel(base, option->CoreLDOVoltage);
     }
 #else /* FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS */
-    SPC_SetActiveModeCoreLDORegulatorVoltageLevel(base, option->CoreLDOVoltage);
+    (void)SPC_SetActiveModeCoreLDORegulatorVoltageLevel(base, option->CoreLDOVoltage);
 #endif /* FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS */
 
     /*
@@ -1023,6 +1051,7 @@ status_t SPC_SetLowPowerModeCoreLDORegulatorDriveStrength(SPC_Type *base, spc_co
     return kStatus_Success;
 }
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
 /*!
  * brief Configs System LDO VDD Regulator in Active mode.
  *
@@ -1219,7 +1248,9 @@ status_t SPC_SetLowPowerModeSystemLDORegulatorDriveStrength(SPC_Type *base, spc_
 
     return kStatus_Success;
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
 /*!
  * brief Configs DCDC VDD Regulator in Active mode.
  *
@@ -1437,6 +1468,8 @@ void SPC_SetDCDCRefreshCount(SPC_Type *base, uint16_t count)
 
     base->DCDC_BURST_CFG = reg;
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+
 
 /*!
  * brief Configs regulators in Active mode.
@@ -1459,16 +1492,12 @@ status_t SPC_SetActiveModeRegulatorsConfig(SPC_Type *base, const spc_active_mode
 
     status_t status;
     bool bandgapConfigured = false;
+    spc_bandgap_mode_t curBandgapMode = SPC_GetActiveModeBandgapMode(base);
 
-    if (((config->DCDCOption.DCDCDriveStrength) == kSPC_DCDC_NormalDriveStrength) || \
-
-#if (defined(FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS) && FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS)
-        ((config->CoreLDOOption.CoreLDODriveStrength) == kSPC_CoreLDO_NormalDriveStrength) || \
-
-#endif  /* FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS */
-        ((config->SysLDOOption.SysLDODriveStrength) == kSPC_SysLDO_NormalDriveStrength))
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
+    if (((config->DCDCOption.DCDCDriveStrength) == kSPC_DCDC_NormalDriveStrength) && (bandgapConfigured == false))
     {
-        if (SPC_GetActiveModeBandgapMode(base) == kSPC_BandgapDisabled)
+        if (curBandgapMode == kSPC_BandgapDisabled)
         {
             if ((config->bandgapMode) == kSPC_BandgapDisabled)
             {
@@ -1481,34 +1510,115 @@ status_t SPC_SetActiveModeRegulatorsConfig(SPC_Type *base, const spc_active_mode
                   strength. */
                 base->ACTIVE_CFG = ((base->ACTIVE_CFG) & (~SPC_ACTIVE_CFG_BGMODE_MASK)) | SPC_ACTIVE_CFG_BGMODE(config->bandgapMode);
                 bandgapConfigured = true;
-            }
+            } 
         }
     }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
 
+#if (defined(FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS) && FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS)
+    if (((config->CoreLDOOption.CoreLDODriveStrength) == kSPC_CoreLDO_NormalDriveStrength)  && (bandgapConfigured == false))
+    {
+        if (curBandgapMode == kSPC_BandgapDisabled)
+        {
+            if ((config->bandgapMode) == kSPC_BandgapDisabled)
+            {
+                /* Bandgap must be enabled if any regulator attemp to work as normal drive strength. */
+                return kStatus_SPC_BandgapModeWrong;
+            }
+            else
+            {
+                /* Set bandgap firstly, if current bandgap is disabled and attempt to set regulator as normal drive
+                  strength. */
+                base->ACTIVE_CFG = ((base->ACTIVE_CFG) & (~SPC_ACTIVE_CFG_BGMODE_MASK)) | SPC_ACTIVE_CFG_BGMODE(config->bandgapMode);
+                bandgapConfigured = true;
+            } 
+        }
+    }
+#endif /* FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
+    if (((config->SysLDOOption.SysLDODriveStrength) == kSPC_SysLDO_NormalDriveStrength)  && (bandgapConfigured == false))
+    {
+        if (curBandgapMode == kSPC_BandgapDisabled)
+        {
+            if ((config->bandgapMode) == kSPC_BandgapDisabled)
+            {
+                /* Bandgap must be enabled if any regulator attemp to work as normal drive strength. */
+                return kStatus_SPC_BandgapModeWrong;
+            }
+            else
+            {
+                /* Set bandgap firstly, if current bandgap is disabled and attempt to set regulator as normal drive
+                  strength. */
+                base->ACTIVE_CFG = ((base->ACTIVE_CFG) & (~SPC_ACTIVE_CFG_BGMODE_MASK)) | SPC_ACTIVE_CFG_BGMODE(config->bandgapMode);
+                bandgapConfigured = true;
+            } 
+        }
+    }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
     if ((uint8_t)config->DCDCOption.DCDCVoltage != (uint8_t)config->CoreLDOOption.CoreLDOVoltage)
     {
         /* Must specify the same level for both DCDC and CORE LDO, even if LDO_CORE is off. */
         return kStatus_SPC_CORELDOVoltageWrong;
     }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
 
-    status = SPC_SetActiveModeCoreLDORegulatorConfig(base, &config->CoreLDOOption);
-    if (status == kStatus_Success)
+    if (SPC_GetActiveModeCoreLDOVDDVoltageLevel(base) < (config->CoreLDOOption.CoreLDOVoltage))
     {
+        /* If want to switch to higher voltage level. */
+
+        /* Set DCDC configuration previously. */
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
         status = SPC_SetActiveModeDCDCRegulatorConfig(base, &config->DCDCOption);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
         if (status == kStatus_Success)
         {
-            status = SPC_SetActiveModeSystemLDORegulatorConfig(base, &config->SysLDOOption);
+            /* Configure CORE LDO after DCDC is configured successfully. */
+            status = SPC_SetActiveModeCoreLDORegulatorConfig(base, &config->CoreLDOOption);
+        }
+        else
+        {
+            return status;
+        }
+    }
+    else
+    {
+        /* If want to switch to lower/same voltage level. */
+
+        /* Set LDO configuration previously. */
+        status = SPC_SetActiveModeCoreLDORegulatorConfig(base, &config->CoreLDOOption);
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
+        if (status == kStatus_Success)
+        {
+            /* Configure DCDC after CORE_LDO is configured successfully. */
+            status = SPC_SetActiveModeDCDCRegulatorConfig(base, &config->DCDCOption);
+        }
+        else
+        {
+            return status;
+        }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+    }
+
+    if (status == kStatus_Success)
+    {
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
+        status = SPC_SetActiveModeSystemLDORegulatorConfig(base, &config->SysLDOOption);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
+        if (status == kStatus_Success)
+        {
+            if (bandgapConfigured == false)
+            {
+                status = SPC_SetActiveModeBandgapModeConfig(base, config->bandgapMode);
+            }
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT)
             if (status == kStatus_Success)
             {
-                if (bandgapConfigured == false)
-                {
-                    status = SPC_SetActiveModeBandgapModeConfig(base, config->bandgapMode);
-                }
-                if (status == kStatus_Success)
-                {
-                    SPC_EnableActiveModeCMPBandgapBuffer(base, config->lpBuff);
-                }
+                SPC_EnableActiveModeCMPBandgapBuffer(base, config->lpBuff);
             }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT */
         }
     }
     return status;
@@ -1537,12 +1647,12 @@ status_t SPC_SetLowPowerModeRegulatorsConfig(SPC_Type *base, const spc_lowpower_
 
     status_t status = kStatus_Success;
     bool bandgapConfigured = false;
+    spc_bandgap_mode_t curBandgapMode = SPC_GetActiveModeBandgapMode(base);
 
-    if (((config->DCDCOption.DCDCDriveStrength) == kSPC_DCDC_NormalDriveStrength) || \
-        ((config->CoreLDOOption.CoreLDODriveStrength) == kSPC_CoreLDO_NormalDriveStrength) || \
-        ((config->SysLDOOption.SysLDODriveStrength) == kSPC_SysLDO_NormalDriveStrength))
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
+    if (((config->DCDCOption.DCDCDriveStrength) == kSPC_DCDC_NormalDriveStrength) && (bandgapConfigured == false))
     {
-        if (SPC_GetLowPowerModeBandgapMode(base) == kSPC_BandgapDisabled)
+        if (curBandgapMode == kSPC_BandgapDisabled)
         {
             if ((config->bandgapMode) == kSPC_BandgapDisabled)
             {
@@ -1555,23 +1665,70 @@ status_t SPC_SetLowPowerModeRegulatorsConfig(SPC_Type *base, const spc_lowpower_
                   strength. */
                 base->LP_CFG = ((base->LP_CFG) & (~SPC_LP_CFG_BGMODE_MASK)) | SPC_LP_CFG_BGMODE(config->bandgapMode);
                 bandgapConfigured = true;
+            } 
+        }
+    }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+
+    if (((config->CoreLDOOption.CoreLDODriveStrength) == kSPC_CoreLDO_NormalDriveStrength) && (bandgapConfigured == false))
+    {
+        if (curBandgapMode == kSPC_BandgapDisabled)
+        {
+            if ((config->bandgapMode) == kSPC_BandgapDisabled)
+            {
+                /* Bandgap must be enabled if any regulator attemp to work as normal drive strength. */
+                return kStatus_SPC_BandgapModeWrong;
             }
+            else
+            {
+                /* Set bandgap firstly, if current bandgap is disabled and attempt to set regulator as normal drive
+                  strength. */
+                base->LP_CFG = ((base->LP_CFG) & (~SPC_LP_CFG_BGMODE_MASK)) | SPC_LP_CFG_BGMODE(config->bandgapMode);
+                bandgapConfigured = true;
+            } 
         }
     }
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
+    if (((config->SysLDOOption.SysLDODriveStrength) == kSPC_SysLDO_NormalDriveStrength) && (bandgapConfigured == false))
+    {
+        if (curBandgapMode == kSPC_BandgapDisabled)
+        {
+            if ((config->bandgapMode) == kSPC_BandgapDisabled)
+            {
+                /* Bandgap must be enabled if any regulator attemp to work as normal drive strength. */
+                return kStatus_SPC_BandgapModeWrong;
+            }
+            else
+            {
+                /* Set bandgap firstly, if current bandgap is disabled and attempt to set regulator as normal drive
+                  strength. */
+                base->LP_CFG = ((base->LP_CFG) & (~SPC_LP_CFG_BGMODE_MASK)) | SPC_LP_CFG_BGMODE(config->bandgapMode);
+                bandgapConfigured = true;
+            } 
+        }
+    }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
     if ((uint8_t)config->DCDCOption.DCDCVoltage != (uint8_t)config->CoreLDOOption.CoreLDOVoltage)
     {
         /* Must specify the same level for both DCDC and CORE LDO, even if LDO_CORE is off. */
         return kStatus_SPC_CORELDOVoltageWrong;
     }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
 
     status = SPC_SetLowPowerModeCoreLDORegulatorConfig(base, &config->CoreLDOOption);
     if (status == kStatus_Success)
     {
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
         status = SPC_SetLowPowerModeSystemLDORegulatorConfig(base, &config->SysLDOOption);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
         if (status == kStatus_Success)
         {
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
             status = SPC_SetLowPowerModeDCDCRegulatorConfig(base, &config->DCDCOption);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
             if (status == kStatus_Success)
             {
                 if (bandgapConfigured == false)
@@ -1580,9 +1737,13 @@ status_t SPC_SetLowPowerModeRegulatorsConfig(SPC_Type *base, const spc_lowpower_
                 }
                 if (status == kStatus_Success)
                 {
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT)
                     SPC_EnableLowPowerModeCMPBandgapBufferMode(base, config->lpBuff);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT */
                     SPC_EnableLowPowerModeLowPowerIREF(base, config->lpIREF);
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT)
                     SPC_EnableLowPowerModeCoreVDDInternalVoltageScaling(base, config->CoreIVS);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT */
                 }
             }
         }

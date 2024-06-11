@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _FSL_SPC_H_
-#define _FSL_SPC_H_
+#ifndef FSL_SPC_H_
+#define FSL_SPC_H_
 #include "fsl_common.h"
 
 /*!
@@ -18,6 +18,12 @@
  * Definitions
  ******************************************************************************/
 
+/*! @name Driver version */
+/*@{*/
+/*! @brief SPC driver version 2.2.1. */
+#define FSL_SPC_DRIVER_VERSION (MAKE_VERSION(2, 2, 1))
+/*@}*/
+
 #define SPC_EVD_CFG_REG_EVDISO_SHIFT   0UL
 #define SPC_EVD_CFG_REG_EVDLPISO_SHIFT 8UL
 #define SPC_EVD_CFG_REG_EVDSTAT_SHIFT  16UL
@@ -26,27 +32,43 @@
 #define SPC_EVD_CFG_REG_EVDLPISO(x) ((uint32_t)(x) << SPC_EVD_CFG_REG_EVDLPISO_SHIFT)
 #define SPC_EVD_CFG_REG_EVDSTAT(x)  ((uint32_t)(x) << SPC_EVD_CFG_REG_EVDSTAT_SHIFT)
 
-/*! @name Driver version */
-/*@{*/
-/*! @brief SPC driver version 2.1.0. */
-#define FSL_SPC_DRIVER_VERSION (MAKE_VERSION(2, 1, 0))
-/*@}*/
+#if (defined(SPC_GLITCH_DETECT_SC_CNT_SELECT_MASK))
+#define VDD_CORE_GLITCH_DETECT_SC       GLITCH_DETECT_SC
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_GLITCH_DETECT_FLAG_MASK    SPC_GLITCH_DETECT_SC_GLITCH_DETECT_FLAG_MASK
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_GLITCH_DETECT_FLAG         SPC_GLITCH_DETECT_SC_GLITCH_DETECT_FLAG
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_LOCK_MASK                  SPC_GLITCH_DETECT_SC_LOCK_MASK
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_CNT_SELECT_MASK            SPC_GLITCH_DETECT_SC_CNT_SELECT_MASK
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_CNT_SELECT                 SPC_GLITCH_DETECT_SC_CNT_SELECT
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_RE_MASK                    SPC_GLITCH_DETECT_SC_RE_MASK
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_RE                         SPC_GLITCH_DETECT_SC_RE
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_TIMEOUT_MASK               SPC_GLITCH_DETECT_SC_TIMEOUT_MASK
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_TIMEOUT                    SPC_GLITCH_DETECT_SC_TIMEOUT
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_IE_MASK                    SPC_GLITCH_DETECT_SC_IE_MASK
+#define SPC_VDD_CORE_GLITCH_DETECT_SC_IE                         SPC_GLITCH_DETECT_SC_IE
+#endif 
 
 /*!
  * @brief SPC status enumeration.
+ *
+ * @note Some device(such as MCXA family) do not equip DCDC or System LDO, please refer to the reference manual
+ * to check.
  */
 enum
 {
     kStatus_SPC_Busy = MAKE_STATUS(kStatusGroup_SPC, 0U), /*!< The SPC instance is busy executing any
                                                                 type of power mode transition. */
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
     kStatus_SPC_DCDCLowDriveStrengthIgnore = MAKE_STATUS(kStatusGroup_SPC, 1U), /*!< DCDC Low drive strength setting be
                                                                                     ignored for LVD/HVD enabled. */
     kStatus_SPC_DCDCPulseRefreshModeIgnore = MAKE_STATUS(kStatusGroup_SPC, 2U), /*!< DCDC Pulse Refresh Mode drive
                                                                     strength setting be ignored for LVD/HVD enabled. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
     kStatus_SPC_SYSLDOOverDriveVoltageFail = MAKE_STATUS(kStatusGroup_SPC, 3U), /*!< SYS LDO regulate to Over drive
                                                                     voltage failed for SYS LDO HVD must be disabled. */
     kStatus_SPC_SYSLDOLowDriveStrengthIgnore = MAKE_STATUS(kStatusGroup_SPC, 4U),  /*!< SYS LDO Low driver strength
-                                                                           setting be ignored for LDO LVD/HVD enabled. */
+                                                                        setting be ignored for LDO LVD/HVD enabled. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
     kStatus_SPC_CORELDOLowDriveStrengthIgnore = MAKE_STATUS(kStatusGroup_SPC, 5U), /*!< CORE LDO Low driver strength
                                                                         setting be ignored for LDO LVD/HVD enabled. */
     kStatus_SPC_CORELDOVoltageWrong   = MAKE_STATUS(kStatusGroup_SPC, 7U),         /*!< Core LDO voltage is wrong. */
@@ -59,16 +81,22 @@ enum
  */
 enum _spc_voltage_detect_flags
 {
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD) && FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD)
     kSPC_IOVDDHighVoltageDetectFlag     = SPC_VD_STAT_IOVDD_HVDF_MASK,   /*!< IO VDD High-Voltage detect flag. */
-    kSPC_SystemVDDHighVoltageDetectFlag = SPC_VD_STAT_SYSVDD_HVDF_MASK,  /*!< System VDD High-Voltage detect flag. */
-    kSPC_CoreVDDHighVoltageDetectFlag   = SPC_VD_STAT_COREVDD_HVDF_MASK, /*!< Core VDD High-Voltage detect flag. */
     kSPC_IOVDDLowVoltageDetectFlag      = SPC_VD_STAT_IOVDD_LVDF_MASK,   /*!< IO VDD Low-Voltage detect flag. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD */
+    kSPC_SystemVDDHighVoltageDetectFlag = SPC_VD_STAT_SYSVDD_HVDF_MASK,  /*!< System VDD High-Voltage detect flag. */
     kSPC_SystemVDDLowVoltageDetectFlag  = SPC_VD_STAT_SYSVDD_LVDF_MASK,  /*!< System VDD Low-Voltage detect flag. */
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD)
+    kSPC_CoreVDDHighVoltageDetectFlag   = SPC_VD_STAT_COREVDD_HVDF_MASK, /*!< Core VDD High-Voltage detect flag. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD */
     kSPC_CoreVDDLowVoltageDetectFlag    = SPC_VD_STAT_COREVDD_LVDF_MASK, /*!< Core VDD Low-Voltage detect flag. */
 };
 
 /*!
  * @brief SPC power domain isolation status.
+ * @note Some devices(such as MCXA family) do not contain WAKE Power Domain, please refer to the reference manual to
+ * check.
  */
 enum _spc_power_domains
 {
@@ -148,9 +176,10 @@ typedef enum _spc_bandgap_mode
     kSPC_BandgapDisabled              = 0x0U, /*!< Bandgap disabled. */
     kSPC_BandgapEnabledBufferDisabled = 0x1U, /*!< Bandgap enabled with Buffer disabled. */
     kSPC_BandgapEnabledBufferEnabled  = 0x2U, /*!< Bandgap enabled with Buffer enabled. */
-    kSPC_BandgapReserved              = 0x3U, /*!< Reserved.  */
+    kSPC_BandgapReserved              = 0x3U, /*!< Reserved. */
 } spc_bandgap_mode_t;
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
 /*!
  * @brief DCDC regulator voltage level enumeration in Active mode or Low Power Mode.
  */
@@ -173,7 +202,9 @@ typedef enum _spc_dcdc_drive_strength
     kSPC_DCDC_LowDriveStrength    = 0x1U, /*!< DCDC VDD regulator Drive Strength set to low. */
     kSPC_DCDC_NormalDriveStrength = 0x2U, /*!< DCDC VDD regulator Drive Strength set to Normal. */
 } spc_dcdc_drive_strength_t;
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
 /*!
  * @brief SYS LDO regulator voltage level enumeration in Active mode.
  */
@@ -191,6 +222,7 @@ typedef enum _spc_sys_ldo_drive_strength
     kSPC_SysLDO_LowDriveStrength    = 0x0U, /*!< SYS LDO VDD regulator Drive Strength set to low. */
     kSPC_SysLDO_NormalDriveStrength = 0x1U, /*!< SYS LDO VDD regulator Drive Strength set to Normal. */
 } spc_sys_ldo_drive_strength_t;
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
 
 /*!
  * @brief Core LDO regulator voltage level enumeration in Active mode or Low Power mode.
@@ -288,6 +320,7 @@ typedef struct _spc_active_mode_core_ldo_option
 #endif /* FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS */
 } spc_active_mode_core_ldo_option_t;
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
 /*!
  * @brief System LDO regulator options in Active mode.
  */
@@ -297,7 +330,9 @@ typedef struct _spc_active_mode_sys_ldo_option
     spc_sys_ldo_drive_strength_t SysLDODriveStrength; /*!< System LDO Regulator Drive Strength
                                                             selection in Active mode. */
 } spc_active_mode_sys_ldo_option_t;
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
 /*!
  * @brief DCDC regulator options in Active mode.
  */
@@ -306,6 +341,7 @@ typedef struct _spc_active_mode_dcdc_option
     spc_dcdc_voltage_level_t DCDCVoltage;        /*!< DCDC Regulator Voltage Level selection in Active mode. */
     spc_dcdc_drive_strength_t DCDCDriveStrength; /*!< DCDC VDD Regulator Drive Strength selection in Active mode. */
 } spc_active_mode_dcdc_option_t;
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
 
 /*!
  * @brief Core LDO regulator options in Low Power mode.
@@ -317,6 +353,7 @@ typedef struct _spc_lowpower_mode_core_ldo_option
                                                             selection in Low Power mode */
 } spc_lowpower_mode_core_ldo_option_t;
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
 /*!
  * @brief System LDO regulator options in Low Power mode.
  */
@@ -325,7 +362,9 @@ typedef struct _spc_lowpower_mode_sys_ldo_option
     spc_sys_ldo_drive_strength_t SysLDODriveStrength; /*!< System LDO Regulator Drive Strength
                                                             selection in Low Power mode. */
 } spc_lowpower_mode_sys_ldo_option_t;
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
 /*!
  * @brief DCDC regulator options in Low Power mode.
  */
@@ -334,17 +373,6 @@ typedef struct _spc_lowpower_mode_dcdc_option
     spc_dcdc_voltage_level_t DCDCVoltage;        /*!< DCDC Regulator Voltage Level selection in Low Power mode. */
     spc_dcdc_drive_strength_t DCDCDriveStrength; /*!< DCDC VDD Regulator Drive Strength selection in Low Power mode. */
 } spc_lowpower_mode_dcdc_option_t;
-
-/*!
- * @brief CORE/SYS/IO VDD Voltage Detect options.
- */
-typedef struct _spc_voltage_detect_option
-{
-    bool HVDInterruptEnable; /*!< CORE/SYS/IO VDD High Voltage Detect interrupt enable. */
-    bool HVDResetEnable;     /*!< CORE/SYS/IO VDD High Voltage Detect reset enable. */
-    bool LVDInterruptEnable; /*!< CORE/SYS/IO VDD Low Voltage Detect interrupt enable. */
-    bool LVDResetEnable;     /*!< CORE/SYS/IO VDD Low Voltage Detect reset enable. */
-} spc_voltage_detect_option_t;
 
 /*!
  * @brief DCDC Burst configuration.
@@ -356,6 +384,18 @@ typedef struct _spc_dcdc_burst_config
     bool stabilizeBurstFreq;   /*!< Enable/Disable DCDC frequency stabilization. */
     uint8_t freq;              /*!< The frequency of the current burst.  */
 } spc_dcdc_burst_config_t;
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+
+/*!
+ * @brief CORE/SYS/IO VDD Voltage Detect options.
+ */
+typedef struct _spc_voltage_detect_option
+{
+    bool HVDInterruptEnable; /*!< CORE/SYS/IO VDD High Voltage Detect interrupt enable. */
+    bool HVDResetEnable;     /*!< CORE/SYS/IO VDD High Voltage Detect reset enable. */
+    bool LVDInterruptEnable; /*!< CORE/SYS/IO VDD Low Voltage Detect interrupt enable. */
+    bool LVDResetEnable;     /*!< CORE/SYS/IO VDD Low Voltage Detect reset enable. */
+} spc_voltage_detect_option_t;
 
 /*!
  * @brief Core Voltage Detect configuration.
@@ -374,6 +414,7 @@ typedef struct _spc_system_voltage_detect_config
     spc_low_voltage_level_select_t level; /*!< System VDD low-voltage selection. */
 } spc_system_voltage_detect_config_t;
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD) && FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD)
 /*!
  * @brief IO Voltage Detect Configuration.
  */
@@ -382,6 +423,7 @@ typedef struct _spc_io_voltage_detect_config
     spc_voltage_detect_option_t option;   /*!< IO VDD Voltage Detect option. */
     spc_low_voltage_level_select_t level; /*!< IO VDD Low-voltage level selection. */
 } spc_io_voltage_detect_config_t;
+#endif /* FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD */
 
 /*!
  * @brief Active mode configuration.
@@ -389,9 +431,19 @@ typedef struct _spc_io_voltage_detect_config
 typedef struct _spc_active_mode_regulators_config
 {
     spc_bandgap_mode_t bandgapMode;                  /*!< Specify bandgap mode in active mode. */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT)
     bool lpBuff;                                     /*!< Enable/disable CMP bandgap buffer. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
     spc_active_mode_dcdc_option_t DCDCOption;        /*!< Specify DCDC configurations in active mode. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
     spc_active_mode_sys_ldo_option_t SysLDOOption;   /*!< Specify System LDO configurations in active mode. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
+
     spc_active_mode_core_ldo_option_t CoreLDOOption; /*!< Specify Core LDO configurations in active mode. */
 } spc_active_mode_regulators_config_t;
 
@@ -402,10 +454,23 @@ typedef struct _spc_lowpower_mode_regulators_config
 {
     bool lpIREF;                                       /*!< Enable/disable low power IREF in low power modes. */
     spc_bandgap_mode_t bandgapMode;                    /*!< Specify bandgap mode in low power modes. */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT)
     bool lpBuff;                                       /*!< Enable/disable CMP bandgap buffer in low power modes. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT)
     bool CoreIVS;                                      /*!< Enable/disable CORE VDD internal voltage scaling. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
     spc_lowpower_mode_dcdc_option_t DCDCOption;        /*!< Specify DCDC configurations in low power modes. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
     spc_lowpower_mode_sys_ldo_option_t SysLDOOption;   /*!< Specify system LDO configurations in low power modes. */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
+
     spc_lowpower_mode_core_ldo_option_t CoreLDOOption; /*!< Specify core LDO configurations in low power modes. */
 } spc_lowpower_mode_regulators_config_t;
 
@@ -493,6 +558,21 @@ static inline void SPC_ClearLowPowerRequest(SPC_Type *base)
     base->SC |= SPC_SC_SPC_LP_REQ_MASK;
 }
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SWITCH_STATE_BIT) && FSL_FEATURE_MCX_SPC_HAS_SWITCH_STATE_BIT)
+/*!
+ * @brief Checks whether the power switch is on.
+ * 
+ * @param base SPC peripheral base address.
+ * 
+ * @retval true The power switch is on.
+ * @retval false The power switch is off.
+ */
+static inline bool SPC_CheckSwitchState(SPC_Type *base)
+{
+    return ((base->SC & SPC_SC_SWITCH_STATE_MASK) != 0UL);
+}
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SWITCH_STATE_BIT */
+
 /*!
  * @brief Gets selected power domain's requested low power mode.
  *
@@ -514,6 +594,7 @@ spc_power_domain_low_power_mode_t SPC_GetPowerDomainLowPowerMode(SPC_Type *base,
  */
 static inline bool SPC_CheckPowerDomainLowPowerRequest(SPC_Type *base, spc_power_domain_id_t powerDomainId)
 {
+    assert((uint8_t)powerDomainId < SPC_PD_STATUS_COUNT);
     return ((base->PD_STATUS[(uint8_t)powerDomainId] & SPC_PD_STATUS_PWR_REQ_STATUS_MASK) ==
             SPC_PD_STATUS_PWR_REQ_STATUS_MASK);
 }
@@ -526,10 +607,64 @@ static inline bool SPC_CheckPowerDomainLowPowerRequest(SPC_Type *base, spc_power
  */
 static inline void SPC_ClearPowerDomainLowPowerRequestFlag(SPC_Type *base, spc_power_domain_id_t powerDomainId)
 {
+    assert((uint8_t)powerDomainId < SPC_PD_STATUS_COUNT);
     base->PD_STATUS[(uint8_t)powerDomainId] |= SPC_PD_STATUS_PD_LP_REQ_MASK;
 }
 
 /* @} */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SRAMRETLDO_REG) && FSL_FEATURE_MCX_SPC_HAS_SRAMRETLDO_REG)
+/*!
+ * @name SRAM Retention LDO Control APIs
+ * @{
+ */
+
+/*!
+ * @brief Trims SRAM retention regulator reference voltage, trim step is 12 mV, range is around 0.48V to 0.85V.
+ * 
+ * @param base SPC peripheral base address.
+ * @param trimValue Reference voltage trim value.
+ */
+static inline void SPC_TrimSRAMLdoRefVoltage(SPC_Type *base, uint8_t trimValue)
+{
+    base->SRAMRETLDO_REFTRIM = ((base->SRAMRETLDO_REFTRIM & ~SPC_SRAMRETLDO_REFTRIM_REFTRIM_MASK) | SPC_SRAMRETLDO_REFTRIM_REFTRIM(trimValue));
+}
+
+/*!
+ * @brief Enables/disables SRAM retention LDO.
+ * 
+ * @param base SPC peripheral base address.
+ * @param enable Used to enable/disable SRAM LDO :
+ *          - \b true Enable SRAM LDO;
+ *          - \b false Disable SRAM LDO.
+ */
+static inline void SPC_EnableSRAMLdo(SPC_Type *base, bool enable)
+{
+    if (enable)
+    {
+        base->SRAMRETLDO_CNTRL |= SPC_SRAMRETLDO_CNTRL_SRAMLDO_ON_MASK;
+    }
+    else
+    {
+        base->SRAMRETLDO_CNTRL &= ~SPC_SRAMRETLDO_CNTRL_SRAMLDO_ON_MASK;
+    }
+}
+
+/*!
+ * @brief 
+ * 
+ * @todo Need to check.
+ * 
+ * @param base SPC peripheral base address.
+ * @param mask The OR'ed value of SRAM Array.
+ */
+static inline void SPC_RetainSRAMArray(SPC_Type *base, uint8_t mask)
+{
+    base->SRAMRETLDO_CNTRL |= SPC_SRAMRETLDO_CNTRL_SRAM_RET_EN(mask);
+}
+
+/* @} */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SRAMRETLDO_REG */
 
 /*!
  * @name Low Power Request configuration
@@ -546,6 +681,61 @@ static inline void SPC_ClearPowerDomainLowPowerRequestFlag(SPC_Type *base, spc_p
 void SPC_SetLowPowerRequestConfig(SPC_Type *base, const spc_lowpower_request_config_t *config);
 
 /* @} */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_CFG_REG) && FSL_FEATURE_MCX_SPC_HAS_CFG_REG)
+/*!
+ * @name Integrated Power Switch Control APIs
+ * @{
+ */
+
+/*!
+ * @brief Enables/disables the integrated power switch manually.
+ * 
+ * @param base SPC peripheral base address.
+ * @param enable Used to enable/disable the integrated power switch:
+ *             - \b true Enable the integrated power switch;
+ *             - \b false Disable the integrated power switch.
+ */
+static inline void SPC_EnableIntegratedPowerSwitchManually(SPC_Type *base, bool enable)
+{
+    if (enable)
+    {
+        base->CFG |= (SPC_CFG_INTG_PWSWTCH_SLEEP_ACTIVE_EN_MASK | SPC_CFG_INTG_PWSWTCH_WKUP_ACTIVE_EN_MASK);
+    }
+    else
+    {
+        base->CFG &= ~(SPC_CFG_INTG_PWSWTCH_SLEEP_ACTIVE_EN_MASK | SPC_CFG_INTG_PWSWTCH_WKUP_ACTIVE_EN_MASK);
+    }
+}
+
+/*!
+ * @brief Enables/disables the integrated power switch automatically.
+ * 
+ * To gate the integrated power switch when chip enter low power modes, and ungate the switch after wake-up from low
+ * power modes:
+ * @code
+ *   SPC_EnableIntegratedPowerSwitchAutomatically(SPC, true, true);
+ * @endcode
+ * 
+ * @param base SPC peripheral base address.
+ * @param sleepGate Enable the integrated power switch when chip enter low power modes:
+ *          - \b true SPC asserts an output pin at low-power entry to power-gate the switch;
+ *          - \b false SPC does not assert an output pin at low-power entry to power-gate the switch.
+ * @param wakeupUngate Enables the switch after wake-up from low power modes:
+ *          - \b true SPC asserts an output pin at low-power exit to power-ungate the switch;
+ *          - \b false SPC does not assert an output pin at low-power exit to power-ungate the switch.
+ */
+static inline void SPC_EnableIntegratedPowerSwitchAutomatically(SPC_Type *base, bool sleepGate, bool wakeupUngate)
+{
+    uint32_t tmp32 = ((base->CFG) & ~(SPC_CFG_INTG_PWSWTCH_SLEEP_EN_MASK | SPC_CFG_INTG_PWSWTCH_WKUP_EN_MASK));
+
+    tmp32 |= SPC_CFG_INTG_PWSWTCH_SLEEP_EN(sleepGate) | SPC_CFG_INTG_PWSWTCH_WKUP_EN(wakeupUngate);
+
+    base->CFG = tmp32;
+}
+
+/* @} */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_CFG_REG */
 
 /*!
  * @name VDD Core Glitch Detector Control APIs
@@ -667,8 +857,18 @@ static inline uint32_t SPC_GetActiveModeVoltageDetectStatus(SPC_Type *base)
 {
     uint32_t state;
     state = base->ACTIVE_CFG &
-            (SPC_ACTIVE_CFG_IO_HVDE_MASK | SPC_ACTIVE_CFG_IO_LVDE_MASK | SPC_ACTIVE_CFG_SYS_HVDE_MASK |
-             SPC_ACTIVE_CFG_SYS_LVDE_MASK | SPC_ACTIVE_CFG_CORE_HVDE_MASK | SPC_ACTIVE_CFG_CORE_LVDE_MASK);
+            (
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD) && FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD)
+            SPC_ACTIVE_CFG_IO_HVDE_MASK | SPC_ACTIVE_CFG_IO_LVDE_MASK | \
+
+#endif /* FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD */
+            SPC_ACTIVE_CFG_SYS_HVDE_MASK | SPC_ACTIVE_CFG_SYS_LVDE_MASK | SPC_ACTIVE_CFG_CORE_LVDE_MASK \
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD)
+            | SPC_ACTIVE_CFG_CORE_HVDE_MASK \
+
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD */
+            );
     return state;
 }
 
@@ -686,6 +886,7 @@ static inline uint32_t SPC_GetActiveModeVoltageDetectStatus(SPC_Type *base)
  */
 status_t SPC_SetActiveModeBandgapModeConfig(SPC_Type *base, spc_bandgap_mode_t mode);
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT)
 /*!
  * @brief Enables/Disable the CMP Bandgap Buffer in Active mode.
  *
@@ -705,6 +906,7 @@ static inline void SPC_EnableActiveModeCMPBandgapBuffer(SPC_Type *base, bool ena
         base->ACTIVE_CFG &= ~SPC_ACTIVE_CFG_LPBUFF_EN_MASK;
     }
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT */
 
 /*!
  * @brief Sets the delay when the regulators change voltage level in Active mode.
@@ -820,8 +1022,18 @@ static inline spc_bandgap_mode_t SPC_GetLowPowerModeBandgapMode(SPC_Type *base)
 static inline uint32_t SPC_GetLowPowerModeVoltageDetectStatus(SPC_Type *base)
 {
     uint32_t state;
-    state = base->LP_CFG & (SPC_LP_CFG_IO_HVDE_MASK | SPC_LP_CFG_IO_LVDE_MASK | SPC_LP_CFG_SYS_HVDE_MASK |
-                            SPC_LP_CFG_SYS_LVDE_MASK | SPC_LP_CFG_CORE_HVDE_MASK | SPC_LP_CFG_CORE_LVDE_MASK);
+    state = base->LP_CFG & (
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD) && FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD)
+        SPC_LP_CFG_IO_HVDE_MASK | SPC_LP_CFG_IO_LVDE_MASK | \
+
+#endif /* FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD */
+        SPC_LP_CFG_SYS_HVDE_MASK | SPC_LP_CFG_SYS_LVDE_MASK | SPC_LP_CFG_CORE_LVDE_MASK \
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD)
+        | SPC_LP_CFG_CORE_HVDE_MASK \
+
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD */
+        );
     return state;
 }
 
@@ -866,6 +1078,29 @@ static inline void SPC_EnableLowPowerModeLowPowerIREF(SPC_Type *base, bool enabl
  */
 status_t SPC_SetLowPowerModeBandgapmodeConfig(SPC_Type *base, spc_bandgap_mode_t mode);
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SRAMLDO_DPD_ON_BIT) && FSL_FEATURE_MCX_SPC_HAS_SRAMLDO_DPD_ON_BIT)
+/*!
+ * @brief Enables/disables SRAM_LDO deep power low power IREF.
+ * 
+ * @param base SPC peripheral base address.
+ * @param enable Used to enable/disable low power IREF :
+ *        - \b true: Low Power IREF is enabled ;
+ *        - \b false: Low Power IREF is disabled for power saving.
+ */
+static inline void SPC_EnableSRAMLdOLowPowerModeIREF(SPC_Type *base, bool enable)
+{
+    if (enable)
+    {
+        base->LP_CFG |= SPC_LP_CFG_SRAMLDO_DPD_ON_MASK;
+    }
+    else
+    {
+        base->LP_CFG &= ~SPC_LP_CFG_SRAMLDO_DPD_ON_MASK;
+    }
+}
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SRAMLDO_DPD_ON_BIT */
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT)
 /*!
  * @brief Enables/Disables CMP Bandgap Buffer.
  *
@@ -888,7 +1123,9 @@ static inline void SPC_EnableLowPowerModeCMPBandgapBufferMode(SPC_Type *base, bo
         base->LP_CFG &= ~SPC_LP_CFG_LPBUFF_EN_MASK;
     }
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_LPBUFF_EN_BIT */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT)
 /*!
  * @brief Enables/Disables CORE VDD IVS(Internal Voltage Scaling) in power down modes.
  *
@@ -912,6 +1149,7 @@ static inline void SPC_EnableLowPowerModeCoreVDDInternalVoltageScaling(SPC_Type 
         base->LP_CFG &= ~SPC_LP_CFG_COREVDD_IVS_EN_MASK;
     }
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_IVS_EN_BIT */
 
 /*!
  * @brief Sets the delay when exit the low power modes.
@@ -1076,21 +1314,6 @@ static inline void SPC_UnlockCoreVoltageDetectResetSetting(SPC_Type *base)
 }
 
 /*!
- * @brief Enables/Disables the Core High Voltage Detector in Active mode.
- *
- * @note If the CORE_LDO high voltage detect is enabled in Active mode, please note that the bandgap must be enabled
- * and the drive strength of each regulator must not set to low.
- *
- * @param base SPC peripheral base address.
- * @param enable Enable/Disable Core HVD.
- *          true    -   Enable Core High voltage detector in active mode.
- *          false   -   Disable Core High voltage detector in active mode.
- *
- * @retval #kStatus_Success Enable/Disable Core High Voltage Detect successfully.
- */
-status_t SPC_EnableActiveModeCoreHighVoltageDetect(SPC_Type *base, bool enable);
-
-/*!
  * @brief Enables/Disables the Core Low Voltage Detector in Active mode.
  *
  * @note If the CORE_LDO low voltage detect is enabled in Active mode, please note that the bandgap must be enabled
@@ -1104,25 +1327,6 @@ status_t SPC_EnableActiveModeCoreHighVoltageDetect(SPC_Type *base, bool enable);
  * @retval #kStatus_Success Enable/Disable Core Low Voltage Detect successfully.
  */
 status_t SPC_EnableActiveModeCoreLowVoltageDetect(SPC_Type *base, bool enable);
-
-/*!
- * @brief Enables/Disables the Core High Voltage Detector in Low Power mode.
- *
- * This function enables/disables the Core High Voltage Detector.
- * If enabled the Core High Voltage detector. The Bandgap mode in
- * low power mode must be programmed so that Bandgap is enabled.
- *
- * @note If the CORE_LDO high voltage detect is enabled in Low Power mode, please note that the bandgap must be enabled
- * and the drive strength of each regulator must not set to low in low power mode.
- *
- * @param base SPC peripheral base address.
- * @param enable Enable/Disable Core HVD.
- *          true    -   Enable Core High voltage detector in low power mode.
- *          false   -   Disable Core High voltage detector in low power mode.
- *
- * @retval #kStatus_Success Enable/Disable Core High Voltage Detect in low power mode successfully.
- */
-status_t SPC_EnableLowPowerModeCoreHighVoltageDetect(SPC_Type *base, bool enable);
 
 /*!
  * @brief Enables/Disables the Core Low Voltage Detector in Low Power mode.
@@ -1142,6 +1346,42 @@ status_t SPC_EnableLowPowerModeCoreHighVoltageDetect(SPC_Type *base, bool enable
  * @retval #kStatus_Success Enable/Disable Core Low Voltage Detect in low power mode successfully.
  */
 status_t SPC_EnableLowPowerModeCoreLowVoltageDetect(SPC_Type *base, bool enable);
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD) && FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD)
+/*!
+ * @brief Enables/Disables the Core High Voltage Detector in Active mode.
+ *
+ * @note If the CORE_LDO high voltage detect is enabled in Active mode, please note that the bandgap must be enabled
+ * and the drive strength of each regulator must not set to low.
+ *
+ * @param base SPC peripheral base address.
+ * @param enable Enable/Disable Core HVD.
+ *          true    -   Enable Core High voltage detector in active mode.
+ *          false   -   Disable Core High voltage detector in active mode.
+ *
+ * @retval #kStatus_Success Enable/Disable Core High Voltage Detect successfully.
+ */
+status_t SPC_EnableActiveModeCoreHighVoltageDetect(SPC_Type *base, bool enable);
+
+/*!
+ * @brief Enables/Disables the Core High Voltage Detector in Low Power mode.
+ *
+ * This function enables/disables the Core High Voltage Detector.
+ * If enabled the Core High Voltage detector. The Bandgap mode in
+ * low power mode must be programmed so that Bandgap is enabled.
+ *
+ * @note If the CORE_LDO high voltage detect is enabled in Low Power mode, please note that the bandgap must be enabled
+ * and the drive strength of each regulator must not set to low in low power mode.
+ *
+ * @param base SPC peripheral base address.
+ * @param enable Enable/Disable Core HVD.
+ *          true    -   Enable Core High voltage detector in low power mode.
+ *          false   -   Disable Core High voltage detector in low power mode.
+ *
+ * @retval #kStatus_Success Enable/Disable Core High Voltage Detect in low power mode successfully.
+ */
+status_t SPC_EnableLowPowerModeCoreHighVoltageDetect(SPC_Type *base, bool enable);
+#endif /* FSL_FEATURE_MCX_SPC_HAS_COREVDD_HVD */
 
 /* @} */
 
@@ -1264,6 +1504,7 @@ status_t SPC_EnableLowPowerModeSystemLowVoltageDetect(SPC_Type *base, bool enabl
 
 /* @} */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD) && FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD)
 /*!
  * @name Voltage detect configuration for IO voltage domain
  * @{
@@ -1380,6 +1621,8 @@ status_t SPC_EnableLowPowerModeIOLowVoltageDetect(SPC_Type *base, bool enable);
 
 /* @} */
 
+#endif /* FSL_FEATURE_MCX_SPC_HAS_IOVDD_VD */
+
 /*!
  * @name External Voltage domains configuration
  * @{
@@ -1415,6 +1658,7 @@ static inline uint8_t SPC_GetExternalDomainsStatus(SPC_Type *base)
  * @name Set CORE LDO Regulator
  * @{
  */
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_CNTRL_REG) && FSL_FEATURE_MCX_SPC_HAS_CNTRL_REG)
 /*!
  * @brief Enable/Disable Core LDO regulator.
  *
@@ -1440,7 +1684,9 @@ static inline void SPC_EnableCoreLDORegulator(SPC_Type *base, bool enable)
         base->CNTRL &= ~SPC_CNTRL_CORELDO_EN_MASK;
     }
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_CNTRL_REG */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DPDOWN_PULLDOWN_DISABLE_BIT) && FSL_FEATURE_MCX_SPC_HAS_DPDOWN_PULLDOWN_DISABLE_BIT)
 /*!
  * @brief Enable/Disable the CORE LDO Regulator pull down in Deep Power Down.
  *
@@ -1462,6 +1708,7 @@ static inline void SPC_PullDownCoreLDORegulator(SPC_Type *base, bool pulldown)
         base->CORELDO_CFG |= SPC_CORELDO_CFG_DPDOWN_PULLDOWN_DISABLE_MASK;
     }
 }
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DPDOWN_PULLDOWN_DISABLE_BIT */
 
 /*!
  * @brief Configs Core LDO VDD Regulator in Active mode.
@@ -1509,7 +1756,7 @@ static inline spc_core_ldo_voltage_level_t SPC_GetActiveModeCoreLDOVDDVoltageLev
                                                     SPC_ACTIVE_CFG_CORELDO_VDD_LVL_SHIFT);
 }
 
-#if defined(FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS) && FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS
+#if (defined(FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS) && FSL_FEATURE_SPC_HAS_CORELDO_VDD_DS)
 /*!
  * @brief Set Core LDO VDD Regulator Drive Strength in Active mode.
  * 
@@ -1612,10 +1859,13 @@ static inline spc_core_ldo_drive_strength_t SPC_GetLowPowerCoreLDOVDDDriveStreng
     return (spc_core_ldo_drive_strength_t)(uint32_t)((base->LP_CFG & SPC_LP_CFG_CORELDO_VDD_DS_MASK) >>
                                                      SPC_LP_CFG_CORELDO_VDD_DS_SHIFT);
 }
+
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_SYS_LDO) && FSL_FEATURE_MCX_SPC_HAS_SYS_LDO)
 /*!
  * @name Set System LDO Regulator.
  * @{
  */
+
 /*!
  * @brief Enable/Disable System LDO regulator.
  *
@@ -1778,7 +2028,9 @@ static inline spc_sys_ldo_drive_strength_t SPC_GetLowPowerModeSystemLDORegulator
     return (spc_sys_ldo_drive_strength_t)(uint32_t)((base->LP_CFG & SPC_LP_CFG_SYSLDO_VDD_DS_MASK) >> SPC_LP_CFG_SYSLDO_VDD_DS_SHIFT);
 }
 /* @} */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_SYS_LDO */
 
+#if (defined(FSL_FEATURE_MCX_SPC_HAS_DCDC) && FSL_FEATURE_MCX_SPC_HAS_DCDC)
 /*!
  * @name Set DCDC Regulator.
  * @{
@@ -1960,10 +2212,12 @@ static inline spc_dcdc_drive_strength_t SPC_GetLowPowerModeDCDCRegulatorDriveStr
 }
 
 /* @} */
+#endif /* FSL_FEATURE_MCX_SPC_HAS_DCDC */
+
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
 /*! @} */
 
-#endif /* _FSL_SPC_H_ */
+#endif /* FSL_SPC_H_ */
